@@ -1,21 +1,18 @@
-\name{multistageselection}
-\alias{multistageselection}
+\name{multistagevariance}
+\alias{multistagevariance}
 %- Also NEED an '\alias' for EACH other topic documented here.
-\title{Expected variance for k-stages selection}
+\title{Expected gain for k-stages selection}
 \description{
- This function calculates the variance of selection \eqn{(E(y)^2-E(y^2))}, which is described by Tallis (1961). 
+ This function calculates the well-known selection gain \eqn{\Delta G(y)}, which is described by Cochran (1951). For one-stage selection the gain is defined as \eqn{\Delta G (y) = i \rho_{y} \rho_{1}}, where \eqn{i} is the selection intensity, \eqn{\rho_{1}} is the correlation between the true breeding value and the selection index \eqn{y} (Utz 1969). 
 
-During a selection procedure, questions such as "How great is the yield after selection?" and "After three years testing and selection, how much is the chance that we miss one good candidate or the best candidate?" are frequently asked. These two questions can be answered by calculating the expected gain and variance of the gain, of a truncated multi-normal distribution (Tallis 1961). A numerical equation for calculating such moment generating function is since a long time available (Utz 1969). However, the properties of this old algorithm is limited. It is slow and can only handle a restricted selection model, which has at most three independent variables.
+During a selection procedure, questions such as "How great is the yield after selection?" and "After three years testing and selection, how much is the chance that we miss one good candidate or the best candidate?" are frequently asked. These two questions can be answered by calculating the expected gain and variance of the gain, of a truncated multi-normal distribution (Tallis 1961). A numerical algorithm for calculating such moment generating function is since a long time available (Utz 1969). However, the properties of this old algorithm is limited. It is slow and can only handle a restricted selection model, which has at most three independent variables.
 
 
 We developed an R-package for maximizing the gain of a multi-stage selection procedure under certain restrictions, e.g., a given annual budget or certain risk limits of each stage. This package is applied in the fields of plant/animal breeding, where a multi-normal regression model is commonly built. It can handle a restricted selection model with up to eight independent variables within seconds.
 
-
-
-
 }
 \usage{
-multistageselection(k, corr, alphaofx, sumdimofxandy,alg)
+multistagevariance(k, corr, alphaofx, sumdimofxandy,alg)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -28,11 +25,9 @@ multistageselection(k, corr, alphaofx, sumdimofxandy,alg)
 }
 \details{
 
-There are only three functions in the package. The functions are used to calculate the moment generating function of the truncated multivariate normal distribution. The selection gain can be described as follow:
+There are only two functions in the package. The functions are used to calculate the moment generating function of the truncated multivariate normal distribution. The selection gain can be described as follow:
 
- $x_i=y+e_i$, where $x_i$: observed mean value of the character at the $i$th stage, $y$: the true genetic value which generates the observation, $e_i$: experiment error, which is assumed to be normally distributed. The true genetic value can be estimated by the observations with a regression function, $y(x)=f(x_1,x_2,...,x_i)$. A fraction $u$ is defined as the ratio of the variance of $e_1$ and $y$
-
-
+$x_i=y+e_i$, where $x_i$: observed mean value of the character at the $i$th stage, $y$: the true genetic value which generates the observation, $e_i$: experiment error, which is assumed to be normally distributed. The true genetic value can be estimated by the observations with a regression function, $y(x)=f(x_1,x_2,...,x_i)$. A fraction $u$ is defined as the ratio of the variance of $e_1$ and $y$
 
 Under the normality assumption, $y$ and $x_i$ are multivariate normally distributed. We want to maximize the expected value of $y$ in the restricted area, which is specified by the selection fraction. The Moment Generating Function (MGF) is used to calculate this multi-dimensional integral (Tallis, 1961; Utz, 1969).
 
@@ -40,13 +35,11 @@ Under the normality assumption, $y$ and $x_i$ are multivariate normally distribu
 Computation of the expected value of $y$ requires computation of the following multi-dimensional integral over the restricted area defined by the selection. Let \eqn{\Omega=\{x_i \geq u_i; \, 1\leq i\leq k\}}, \eqn{U=\{u_1,...,u_k\}}, \eqn{\phi_k}: the density function of the multivariate normal distribution. The integral is given by  \eqn{E_{\Omega}(y)  = \int_{-\infty} ^\infty y(x) \int_0^\infty...\int_0^\infty \phi_k(X; U, \Sigma) \,dx_1...dx_k dy}
 
 
-
-
 For further details about the whole project (selection gain for Double haploids and selection gain with markers), please contact the project contact person. The most important function is "multistageselection", which calculates the selection gain from given selection fraction and correlation matrix.
 }
 
 \value{
-  The value returned, is the gain of selection.
+  The value returned, is the variance of selected candidates.
   }
 \references{
 
@@ -140,8 +133,21 @@ alphaofx=pmvnorm(lower=k,corr=corr)
 multistageselection(k=k,corr=corr,alphaofx,sumdimofxandy=4)
 
 
+
+selection.var.time.miwa=system.time (var.miwa<-multistagevariance(k=c(-200,quantile),corr=corr,alphaofx,sumdimofxandy=4,alg=Miwa))
+
+selection.var.time.bretz=system.time (var.bretz<-multistagevariance(k=c(-200,quantile),corr=corr,alphaofx,sumdimofxandy=4))
+
+
+selection.var.time.miwa
+var.miwa[1]
+selection.var.time.bretz
+var.bretz[1]
+
+
+
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
-\keyword{Truncated multivariate normal }
 
+\keyword{ Truncated multivariate normal }% __ONLY ONE__ keyword per line
