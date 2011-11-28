@@ -1,7 +1,7 @@
-\name{multistageselection}
-\alias{multistageselection}
+\name{multistagegain}
+\alias{multistagegain}
 %- Also NEED an '\alias' for EACH other topic documented here.
-\title{Expected gain for k-stages selection (old function)}
+\title{Expected gain for k-stages selection}
 \description{
  This function calculates the gain of selection, which is described by Tallis (1961). 
 
@@ -10,18 +10,16 @@ During a selection procedure, questions such as "How great is the yield after se
 
 We developed an R-package for maximizing the gain of a multi-stage selection procedure under certain restrictions, e.g., a given annual budget or certain risk limits of each stage. This package is applied in the fields of plant/animal breeding, where a multi-normal regression model is commonly built. It can handle a restricted selection model with up to eight independent variables within seconds.
 
-This is an old function, for R version <= 2.10. , it is replaced by multistagegain afterwards.
-
 
 
 
 }
 \usage{
-multistageselection(k, corr, alphaofx, sumdimofxandy,alg)
+multistagegain(k, corr, alphaofx, sum.dim,alg)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{sumdimofxandy}{It is the dimension of k, which is dimension of x plus 1 (y has one dimension). }
+  \item{sum.dim}{It is the dimension of k, which is dimension of x plus 1 (y has one dimension). }
   \item{k}{The lower bound of the integral, should be a vector. The first element of k is the lower bound of the response variable, Y, which is usually set as -Inf. The dimension of k should be the dimension of selection stage plus one. }
   \item{corr}{correlation matrix. }
   \item{alphaofx}{Selected fraction, this is a scalar not a vector. }
@@ -118,7 +116,7 @@ k=c(-200,quantile)
 
 alphaofx=pmvnorm(lower=c(-200,quantile),corr=corr)
 
-multistageselection(k=c(-200,quantile),corr=corr,alphaofx,sumdimofxandy=4)
+multistagegain(k=c(-200,quantile),corr=corr,alphaofx,sum.dim=4)
 
 
 
@@ -135,11 +133,11 @@ corr=matrix( c(1,       0.3508,0.3508,0.4979,
               nrow=4  
 )
 
-sumdimofxandy=4
+sum.dim=4
 
 alphaofx=pmvnorm(lower=k,corr=corr)
 
-multistageselection(k=k,corr=corr,alphaofx,sumdimofxandy=4)
+multistagegain(k=k,corr=corr,alphaofx,sum.dim=4)
 
 
 }
