@@ -3,7 +3,6 @@
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{Expected gain for k-stages selection}
 \description{
- This function calculates the well-known selection gain \eqn{\Delta G(y)}, which is described by Cochran (1951). For one-stage selection the gain is defined as \eqn{\Delta G (y) = i \rho_{y} \rho_{1}}, where \eqn{i} is the selection intensity, \eqn{\rho_{1}} is the correlation between the true breeding value and the selection index \eqn{y} (Utz 1969). 
 
 During a selection procedure, questions such as "How great is the yield after selection?" and "After three years testing and selection, how much is the chance that we miss one good candidate or the best candidate?" are frequently asked. These two questions can be answered by calculating the expected gain and variance of the gain, of a truncated multi-normal distribution (Tallis 1961). A numerical algorithm for calculating such moment generating function is since a long time available (Utz 1969). However, the properties of this old algorithm is limited. It is slow and can only handle a restricted selection model, which has at most three independent variables.
 
@@ -12,11 +11,11 @@ We developed an R-package for maximizing the gain of a multi-stage selection pro
 
 }
 \usage{
-multistagevariance(k, corr, alphaofx, sumdimofxandy,alg)
+multistagevariance(k, corr, alphaofx, sum.dim,alg)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{sumdimofxandy}{It is the dimension of k, which is dimension of x plus 1 (y has one dimension). }
+  \item{sum.dim}{It is the dimension of k, which is dimension of x plus 1 (y has one dimension). }
   \item{k}{The lower bound of the integral, should be a vector. The first element of k is the lower bound of the response variable, Y, which is usually set as -Inf. The dimension of k should be the dimension of selection stage plus one. }
   \item{corr}{correlation matrix. }
   \item{alphaofx}{Selected fraction, this is a scalar not a vector. }
@@ -39,8 +38,16 @@ For further details about the whole project (selection gain for Double haploids 
 }
 
 \value{
-  The value returned, is the variance of selected candidates.
+
+The output of this function is a vector that contains four values, which are the \eqn{E(y^2)}, \eqn{\sum_{k=1}^{n} B_{k}},  \eqn{\sum_{k=1}^{n} ( \rho_{i,k} \sum_{r \neq k} C_{r,k} )} and \eqn{\alpha}. The user have to notice that if they want the variance, they have to use \eqn{E(y^2)} subtract the \eqn{[E(y)]^2} got from last function.   
+
+If sum.dim =2, the user have to be noticed. The value returned, is only the \eqn{E(y^2)}.
+
+  
   }
+  
+  
+  
 \references{
 
 W.G. Cochran. Improvent by means of selection. In: Proceedings Second Berkeley Symposium on Math Stat Prof, pp449-470, 1951
@@ -134,15 +141,134 @@ multistageselection(k=k,corr=corr,alphaofx,sumdimofxandy=4)
 
 
 
-selection.var.time.miwa=system.time (var.miwa<-multistagevariance(k=c(-200,quantile),corr=corr,alphaofx,sumdimofxandy=4,alg=Miwa))
+selection.var.time.miwa=system.time (var.miwa<-multistagevariance(k=k,corr=corr,alphaofx,sum.dim=4,alg=Miwa))
 
-selection.var.time.bretz=system.time (var.bretz<-multistagevariance(k=c(-200,quantile),corr=corr,alphaofx,sumdimofxandy=4))
+selection.var.time.bretz=system.time (var.bretz<-multistagevariance(k=k,corr=corr,alphaofx,sum.dim=4))
 
 
 selection.var.time.miwa
 var.miwa[1]
 selection.var.time.bretz
 var.bretz[1]
+
+# further examples 1 
+
+
+k=c(-200,0.9674216, 1.6185430)
+
+corr=matrix( c(1,      0.7071068, 0.9354143,
+               0.7071068, 1,      0.7559289,
+               0.9354143, 0.7559289, 1    
+             ), 
+              nrow=3  
+)
+
+sum.dim=3
+
+alphaofx=pmvnorm(lower=k,corr=corr)
+
+multistagegain(k=k,corr=corr,alphaofx,sum.dim=3)
+
+multistagegain(k=k,corr=corr,alphaofx,sum.dim=3,stages=TRUE)
+
+multistagevariance(k=k,corr=corr,alphaofx,sum.dim=3,alg=Miwa)
+
+
+
+
+selection.var.time.miwa=system.time (var.miwa<-multistagevariance(k=c(-200,quantile),corr=corr,alphaofx,sum.dim=3,alg=Miwa))
+
+selection.var.time.bretz=system.time (var.bretz<-multistagevariance(k=c(-200,quantile),corr=corr,alphaofx,sum.dim=3))
+
+
+selection.var.time.miwa
+var.miwa[1]
+selection.var.time.bretz
+var.bretz[1]
+
+# further examples 2
+
+ alpha1<- 1
+ alpha2<- 1/24
+ Q=calculatefromalpha(alpha=c(alpha1,alpha2),dim=2,corr=corr[2:3,2:3])
+
+k=c(-200,Q)
+
+corr=matrix( c(1,      0.7071068, 0.9354143,
+               0.7071068, 1,      0.7559289,
+               0.9354143, 0.7559289, 1    
+             ), 
+              nrow=3  
+)
+
+sum.dim=3
+
+alphaofx=pmvnorm(lower=k,corr=corr)
+
+multistagegain(k=k,corr=corr,alphaofx,sum.dim=3)
+
+multistagegain(k=k,corr=corr,alphaofx,sum.dim=3,stages=TRUE)
+
+multistagevariance(k=k,corr=corr,alphaofx,sum.dim=3,alg=Miwa)
+
+
+# further examples 3 for the paper
+
+ alpha1<- 1/6
+ alpha2<- 1/4
+ Q=calculatefromalpha(alpha=c(alpha1,alpha2),dim=2,corr=corr[2:3,2:3])
+
+k=c(-200,Q)
+
+corr=matrix( c(1,      0.7071068, 0.9354143,
+               0.7071068, 1,      0.7559289,
+               0.9354143, 0.7559289, 1    
+             ), 
+              nrow=3  
+)
+
+sum.dim=3
+
+alphaofx=pmvnorm(lower=k,corr=corr)
+
+multistagegain(k=k,corr=corr,alphaofx,sum.dim=3)
+
+multistagegain(k=k,corr=corr,alphaofx,sum.dim=3,stages=TRUE)
+
+multistagegain.each(k=k,corr=corr,alphaofx,sum.dim=3)
+
+multistagevariance(k=k,corr=corr,alphaofx,sum.dim=3,alg=Miwa)
+
+
+# further examples 4 for the paper
+
+ alpha1<- 1/(24)^0.5
+ alpha2<- 1/(24)^0.5
+ Q=calculatefromalpha(alpha=c(alpha1,alpha2),dim=2,corr=corr[2:3,2:3])
+
+k=c(-200,Q)
+
+corr=matrix( c(1,      0.7071068, 0.9354143,
+               0.7071068, 1,      0.7559289,
+               0.9354143, 0.7559289, 1    
+             ), 
+              nrow=3  
+)
+
+sum.dim=3
+
+alphaofx=pmvnorm(lower=k,corr=corr)
+
+multistagegain(k=k,corr=corr,alphaofx,sum.dim=3)
+
+multistagegain(k=k,corr=corr,alphaofx,sum.dim=3,stages=TRUE)
+
+multistagegain.each(k=k,corr=corr,alphaofx,sum.dim=3)
+
+multistagevariance(k=k,corr=corr,alphaofx,sum.dim=3,alg=Miwa)
+
+
+
 
 
 
