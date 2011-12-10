@@ -1,5 +1,5 @@
 `multistagegain` <-
-function(k,corr,alphaofx,sum.dim,alg= GenzBretz())
+function(k,corr,alphaofx,sum.dim,alg= GenzBretz(), stages=FALSE)
 {
 
 
@@ -77,22 +77,36 @@ j3q<-function (q,A,part.corr,dim)
     output
  }
 
-calculatx1<-function(A,part.corr,dim,corr,k,alpha3)
+calculatx1<-function(A,part.corr,dim,corr,k,alpha3,stages=FALSE)
 { 
+ 
+   if (stages)
+   {
+   output=rep(0,dim)
+    i=1
+   for (i in 1 : dim)
+ {
+   output[i]=corr[1,i]*dnorm(k[i])*j3q(i,A,part.corr,dim)/alpha3
+ }
+   output[2:dim]
+   
+   }else
+{
+   
    output=0
    i=1
    for (i in 1 : dim)
  {
    output= output+ corr[1,i]*dnorm(k[i])*j3q(i,A,part.corr,dim)/alpha3
  }
-   
+    output 
+}
 
 
-  output
 }
   
 
-gainresult<-calculatx1(A=A,part.corr=part.corr,dim=dim,corr=corr,k=k,alpha3=alphaofx)
+gainresult<-calculatx1(A=A,part.corr=part.corr,dim=dim,corr=corr,k=k,alpha3=alphaofx,stages=stages)
 
 }
 gainresult

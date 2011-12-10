@@ -3,7 +3,7 @@
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{Expected gain for k-stages selection (old function)}
 \description{
- This function calculates the gain of selection, which is described by Tallis (1961). 
+  This function calculates the well-known selection gain \eqn{\Delta G(y)}, which is described by Cochran (1951). For one-stage selection the gain is defined as \eqn{\Delta G (y) = i \rho_{y} \rho_{1}}, where \eqn{i} is the selection intensity, \eqn{\rho_{1}} is the correlation between the true breeding value and the selection index \eqn{y} (Utz 1969). 
 
 During a selection procedure, questions such as "How great is the yield after selection?" and "After three years testing and selection, how much is the chance that we miss one good candidate or the best candidate?" are frequently asked. These two questions can be answered by calculating the expected gain and variance of the gain, of a truncated multi-normal distribution (Tallis 1961). A numerical equation for calculating such moment generating function is since a long time available (Utz 1969). However, the properties of this old algorithm is limited. It is slow and can only handle a restricted selection model, which has at most three independent variables.
 

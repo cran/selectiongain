@@ -1,5 +1,5 @@
-\name{multistagegain}
-\alias{multistagegain}
+\name{multistagegain.each}
+\alias{multistagegain.each}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{Expected gain for k-stages selection}
 \description{
@@ -15,7 +15,7 @@ We developed an R-package for maximizing the gain of a multi-stage selection pro
 
 }
 \usage{
-multistagegain(k, corr, alphaofx, sum.dim,alg,stages=FALSE)
+multistagegain.each(k, corr, alphaofx, sum.dim,alg)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -24,7 +24,7 @@ multistagegain(k, corr, alphaofx, sum.dim,alg,stages=FALSE)
   \item{corr}{correlation matrix. }
   \item{alphaofx}{Selected fraction, this is a scalar not a vector. }
   \item{alg}{It decides which algorithm will be used, the Genz and Brett' algorithm is used by default. The Miwa's algorithm can be optional (Mi. et al. 2009; Genz. et al. 2010). }
-  \item{stages}{If = TRUE, the gain from each stages will be shown }
+
 
 
 
@@ -119,7 +119,7 @@ k=c(-200,quantile)
 
 alphaofx=pmvnorm(lower=c(-200,quantile),corr=corr)
 
-multistagegain(k=c(-200,quantile),corr=corr,alphaofx,sum.dim=4)
+multistagegain.each(k=c(-200,quantile),corr=corr,alphaofx,sum.dim=4)
 
 
 
@@ -140,14 +140,66 @@ sum.dim=4
 
 alphaofx=pmvnorm(lower=k,corr=corr)
 
-multistagegain(k=k,corr=corr,alphaofx,sum.dim=4)
+multistagegain.each(k=k,corr=corr,alphaofx,sum.dim=4)
 
 
-#####
-# new code for testing the parameter stages
-#####
 
-multistagegain(k=k,corr=corr,alphaofx,sum.dim=4,stages=TRUE)
+# further examples 3 for the paper
+
+ alpha1<- 1/24
+ alpha2<- 1
+ Q=calculatefromalpha(alpha=c(alpha1,alpha2),dim=2,corr=corr[2:3,2:3])
+
+k=c(-200,Q)
+
+corr=matrix( c(1,      0.7071068, 0.9354143,
+               0.7071068, 1,      0.7559289,
+               0.9354143, 0.7559289, 1    
+             ), 
+              nrow=3  
+)
+
+sum.dim=3
+
+alphaofx=pmvnorm(lower=k,corr=corr)
+
+multistagegain(k=k,corr=corr,alphaofx,sum.dim=3)
+
+multistagegain(k=k,corr=corr,alphaofx,sum.dim=3,stages=TRUE)
+
+multistagegain.each(k=k,corr=corr,alphaofx,sum.dim=3)
+
+
+multistagevariance(k=k,corr=corr,alphaofx,sum.dim=3,alg=Miwa)
+
+
+# further examples 4 for the paper
+
+ alpha1<- 1/(24)^0.5
+ alpha2<- 1/(24)^0.5
+ Q=calculatefromalpha(alpha=c(alpha1,alpha2),dim=2,corr=corr[2:3,2:3])
+
+k=c(-200,Q)
+
+corr=matrix( c(1,      0.7071068, 0.9354143,
+               0.7071068, 1,      0.7559289,
+               0.9354143, 0.7559289, 1    
+             ), 
+              nrow=3  
+)
+
+sum.dim=3
+
+alphaofx=pmvnorm(lower=k,corr=corr)
+
+multistagegain(k=k,corr=corr,alphaofx,sum.dim=3)
+
+multistagegain(k=k,corr=corr,alphaofx,sum.dim=3,stages=TRUE)
+
+multistagegain.each(k=k,corr=corr,alphaofx,sum.dim=3)
+
+multistagevariance(k=k,corr=corr,alphaofx,sum.dim=3,alg=Miwa)
+
 
 
 

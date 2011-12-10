@@ -1,8 +1,8 @@
 `multistagevariance` <-
-function(k,corr,alphaofx,sumdimofxandy,alg= GenzBretz())
+function(k,corr,alphaofx,sum.dim,alg= GenzBretz())
 {
 
-dim=sumdimofxandy  
+dim=sum.dim  
 # in one stage selection case dim = 2
 
 for (i in 1:dim)
@@ -21,7 +21,7 @@ stop("dimension of k must bigger than 1, otherwise this is not one-stage selecti
 }else if(dim==2)
 {
 
-var.result=(1-corr[1,2]^2*(dnorm(k[2])/alphaofx))*(dnorm(k[2])/alphaofx- k[2])
+gainresult=(1-corr[1,2]^2*(dnorm(k[2])/alphaofx))*(dnorm(k[2])/alphaofx- k[2]) + (corr[1,2]*dnorm(k[2])/alphaofx)^2
 
 }else
 {
@@ -173,10 +173,13 @@ j3q<-function (q,A,part.corr,dim)
        lower=A[q,-q]     
    
     corr= part.corr[-q,-q,q]
-
-
+ 
+  
+     
     output=pmvnorm(lower = lower, upper = rep(Inf,c(dim-1)), mean = rep(0, length(lower)), 
     corr = corr, sigma = NULL, algorithm =  alg) 
+    
+    
     output
  }
 
@@ -191,8 +194,15 @@ j3q.second<-function (q,r,A2,part.corr,dim)
 
     lower=A2[q,c(-q,-r),r]
     
+    if (dim>3)
+    {
     output=pmvnorm(lower = lower, upper = rep(Inf,c(dim-2)), mean = rep(0, length(lower)), 
     corr = corr, sigma = NULL, algorithm =  alg) 
+    }else
+    {
+    output=pnorm(q=lower, mean = 0, sd = 1, lower.tail =FALSE, log.p = FALSE)
+    }
+    
     output
  }
 
@@ -217,7 +227,12 @@ calculatx2<-function(i,j,A,A2,part.corr,part.corr.second,dim,corr,k,alpha3)
          {
             if (q!=j && i!=q && r!=i&& r!=j&& r!=q )
             {
+            
+
+            
             sum2= sum2+ corr[q,i]*dmvnorm(x=c(k[q],k[r]),sigma=corr[c(q,r),c(q,r)])/alpha3 * j3q.second(q,r,A2,part.corr,dim) *(corr[r,j]-corr[q,r]*corr[q,j]/corr[q,q])
+            
+            
             }
          }
    }
@@ -233,6 +248,9 @@ calculatx2<-function(i,j,A,A2,part.corr,part.corr.second,dim,corr,k,alpha3)
 gainresult<-calculatx2(i=1,j=1,A=A,A2=A2,part.corr=part.corr,part.corr.second=part.corr.second,dim=dim,corr=corr,k=k,alpha3=alphaofx)
 
 }
+
+
+
 gainresult
 }
 
