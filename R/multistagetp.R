@@ -1,7 +1,11 @@
-`calculatefromalpha` <-
-function(alpha,dim,corr,alg=GenzBretz())
+`multistagetp` <-
+function(alpha,corx,alg=GenzBretz())
 {
+   corr=corx
+    dim=length(alpha)
     
+   # if alpha =1, there will be a problem, the user should reduce alpha slightly
+  
     for (i in 1:dim)
     {
         if (alpha[i]==1)
@@ -11,7 +15,7 @@ function(alpha,dim,corr,alg=GenzBretz())
     
     }
     
-    
+ # this is for the root search function   
     qnormbar<-function(kwanted,koutput,corr,howmanyk,alpha, algorithm = alg)
    {   
         corr2dim=corr[1:howmanyk,1:howmanyk] 
@@ -28,6 +32,8 @@ function(alpha,dim,corr,alg=GenzBretz())
                    corr = corr2dim, algorithm = alg) - alphatotal   
    }
      
+ # repeat the root search for dim dimensions    
+     
     koutput=0
     for (i in  1: dim ) 
    {
@@ -41,7 +47,7 @@ function(alpha,dim,corr,alg=GenzBretz())
               index1=qnormbar(kwanted=100,koutput,corr,i,alpha, algorithm = alg)
               index2=qnormbar(kwanted=-100,koutput,corr,i,alpha, algorithm = alg)
               
-              #          kwanted should  -100<=  kwanted <= 100
+              #          kwanted should be -100<=  kwanted <= 100
               
              if (index1>0)
             {

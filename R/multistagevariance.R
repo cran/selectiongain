@@ -1,9 +1,12 @@
 `multistagevariance` <-
-function(k,corr,alphaofx,sum.dim,alg= GenzBretz())
+function(Q,corr,alg=GenzBretz(),lim.y=-200)
 {
 
-dim=sum.dim  
-# in one stage selection case dim = 2
+dim=length(Q)+1
+k=c(lim.y,Q) 
+alphaofx=pmvnorm(lower=k,corr=corr)
+
+# in the case of one stage selection, dim = 2
 
 for (i in 1:dim)
 {
@@ -13,6 +16,7 @@ for (i in 1:dim)
    }
 }
 
+# if dim < 2 , then stop
 
 if (dim<2)
 {
@@ -21,10 +25,14 @@ stop("dimension of k must bigger than 1, otherwise this is not one-stage selecti
 }else if(dim==2)
 {
 
-gainresult=(1-corr[1,2]^2*(dnorm(k[2])/alphaofx))*(dnorm(k[2])/alphaofx- k[2]) + (corr[1,2]*dnorm(k[2])/alphaofx)^2
+# if dim=2, then we deal with one stage selection
+
+gainresult=(1-corr[1,2]^2*(dnorm(k[2])/alphaofx))*(dnorm(k[2])/alphaofx- k[2]) 
 
 }else
 {
+
+# otherwise, we use Talis(1965)'s algorithm 
 
 A=array(0,c(dim,dim))
 
@@ -247,10 +255,19 @@ calculatx2<-function(i,j,A,A2,part.corr,part.corr.second,dim,corr,k,alpha3)
 
 gainresult<-calculatx2(i=1,j=1,A=A,A2=A2,part.corr=part.corr,part.corr.second=part.corr.second,dim=dim,corr=corr,k=k,alpha3=alphaofx)
 
+gain=multistagegain(Q= Q, corr=corr,alg=alg)
+
+# V = E(x^2)-E(x)^2
+
+variance=gainresult[1]-gain^2
+
 }
 
 
 
-gainresult
+variance[1]
+
+
+
 }
 

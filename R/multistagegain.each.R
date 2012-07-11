@@ -1,16 +1,19 @@
 `multistagegain.each` <-
-function(k,corr,alphaofx,sum.dim,alg= GenzBretz())
+function(Q,corr,alg=GenzBretz(),lim.y=-200)
 {
-
+    sum.dim=length(Q)+1
+    k=c(lim.y,Q)
    gain.array = array (0,c(sum.dim-1))
+  
+   #  The output is given as
+#(G1(y), G2(y)-G1(y),G3(y)-G2(y), ...), where Gi(y) refers to the total selection
+# gain after the first i stages of selection.
    
    for (i in 2:c(sum.dim))
    
    {
-     alphaofx = pmvnorm(lower=k[1:i],corr=corr[1:i,1:i])
-     gain.array[i-1]= multistagegain(k[1:i],corr[1:i,1:i],alphaofx,sum.dim=i,alg= GenzBretz())
-   
-   }
+     gain.array[i-1]= multistagegain(Q=k[2:i],corr[1:i,1:i],alg= GenzBretz(),lim.y=k[1])
+     }
    
     
    for (i in 2:c(sum.dim-1))

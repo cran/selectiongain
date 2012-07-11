@@ -1,19 +1,26 @@
 `multistagegain` <-
-function(k,corr,alphaofx,sum.dim,alg= GenzBretz(), stages=FALSE)
+function(Q,corr,alg= GenzBretz(),lim.y=-200, stages=FALSE)
 {
 
+k=c(lim.y,Q)
 
+sum.dim=length(k)
+
+alphaofx=pmvnorm(lower=k,corr=corr)
  
 dim=sum.dim
-# in one stage selection case dim = 2
+
+# check if k[i]= inf
 
 for (i in 1:dim)
 {
    if (is.infinite(k[i])==TRUE)
    {
-     k[i]=-100
+     k[i]=-lim.y
    }
 }
+
+# check dim, 
 
 
 if (dim<2)
@@ -22,11 +29,17 @@ stop("dimension of k must bigger than 1, otherwise this is not one-stage selecti
 
 }else if(dim==2)
 {
+
+# in the case of one stage selection, dim = 2
+
+
 gainresult=corr[1,2]*dnorm(k[2])/alphaofx
 
 
 }else
 {
+
+# calculate the gain according to Talis(1965)
 
 A=array(0,c(dim,dim))
 
