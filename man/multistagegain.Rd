@@ -1,51 +1,47 @@
 \name{multistagegain}
 \alias{multistagegain}
 %- Also NEED an '\alias' for EACH other topic documented here.
-\title{Expected gain for k-stages selection}
+\title{Function for calculating the multi-stage selection gain}
 \description{
-  This function calculates the well-known selection gain \eqn{\Delta G(y)}, which is described by Cochran (1951). For one-stage selection the gain is defined as \eqn{\Delta G (y) = i \rho_{y} \rho_{1}}, where \eqn{i} is the selection intensity, \eqn{\rho_{1}} is the correlation between the true breeding value and the selection index \eqn{y} (Utz 1969). 
+ 
+This is the main function of the package and uses following equation given by Tallis(1965):
 
-During a selection procedure, questions such as "How great is the yield after selection?" and "After three years testing and selection, how much is the chance that we miss one good candidate or the best candidate?" are frequently asked. These two questions can be answered by calculating the expected gain and variance of the gain, of a truncated multi-normal distribution (Tallis 1961). A numerical equation for calculating such moment generating function is since a long time available (Utz 1969). However, the properties of this old algorithm is limited. It is slow and can only handle a restricted selection model, which has at most three independent variables.
+\eqn{
+\frac{\partial m(\textbf{t})}{\partial t_i}|_{\textbf{t}=\textbf{0}}=  E(X_i) =\frac{1}{\alpha} \sum_{k=0}^{n} \rho_{i,k} \,  \phi_1(q_k) \,  \Phi_{n} (A_{k,s};R_k) 
+}
 
-
-We developed an R-package for maximizing the gain of a multi-stage selection procedure under certain restrictions, e.g., a given annual budget or certain risk limits of each stage. This package is applied in the fields of plant/animal breeding, where a multi-normal regression model is commonly built. It can handle a restricted selection model with up to eight independent variables within seconds.
-
+ to calculate selection gain for given correlation matrix and coordinates of the truncation points. 
 
 
 
 }
 \usage{
-multistagegain(k, corr, alphaofx, sum.dim,alg,stages=FALSE)
+multistagegain(Q, corr, alg, lim.y, stages=FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{sum.dim}{It is the dimension of k, which is dimension of x plus 1 (y has one dimension). }
-  \item{k}{The lower bound of the integral, should be a vector. The first element of k is the lower bound of the response variable, Y, which is usually set as -Inf. The dimension of k should be the dimension of selection stage plus one. }
-  \item{corr}{correlation matrix. }
-  \item{alphaofx}{Selected fraction, this is a scalar not a vector. }
-  \item{alg}{It decides which algorithm will be used, the Genz and Brett' algorithm is used by default. The Miwa's algorithm can be optional (Mi. et al. 2009; Genz. et al. 2010). }
-  \item{stages}{If = TRUE, the gain from each stages will be shown }
+ 
+\item{Q}{ (length n) refers to the coordinates of the truncation points Q, which is the output of the next function (\pkg{multistagetp}) that we are going to introduced.}
+  
+\item{corr}{(n+1-dimensional matrix) is the correlation matrix of y and X. The correlation matrix must be symmetric and positive-definite. Before starting the calculations, the user is recommended to check the correlation matrix, which is usually obtained by analysis of one or several experiments designed for estimating covariance components as well as phenotypic and genotypic correlations.}
+
+\item{alg}{is used to switch between two algorithms. If alg = GenzBretz(), which is by default, the quasi-Monte Carlo algorithm from Genz(1999) will be used. If alg = Miwa(), the program will use the Miwa algorithm (Mi2009), which an analytical solution of the MVN integral (Miwa2003). Miwa's algorithm has higher accuracy (7 digits) than quasi-Monte Carlo algorithm (5 digits), however the computational speed is also slower. Therefore, we recommend the user to use the default value of this parameter.}
+ 
+\item{lim.y}{ is the lower limit of y and is set to -200 as default, which is on the safe side.} 
+  
+\item{stages}{If = TRUE, the gain from each stages will be shown. }
 
 
 
 }
 \details{
 
-There are only three functions in the package. The functions are used to calculate the moment generating function of the truncated multivariate normal distribution. The selection gain can be described as follow:
+This function calculates the well-known selection gain \eqn{\Delta G(y)}, which is described by Cochran (1951). For one-stage selection the gain is defined as \eqn{\Delta G(y) = i \rho_{y} \rho_{1}}, where \eqn{i} is the selection intensity, \eqn{\rho_{1}} is the correlation between the true breeding value and the selection index \eqn{y} (Utz 1969). 
 
- $x_i=y+e_i$, where $x_i$: observed mean value of the character at the $i$th stage, $y$: the true genetic value which generates the observation, $e_i$: experiment error, which is assumed to be normally distributed. The true genetic value can be estimated by the observations with a regression function, $y(x)=f(x_1,x_2,...,x_i)$. A fraction $u$ is defined as the ratio of the variance of $e_1$ and $y$
-
-
-
-Under the normality assumption, $y$ and $x_i$ are multivariate normally distributed. We want to maximize the expected value of $y$ in the restricted area, which is specified by the selection fraction. The Moment Generating Function (MGF) is used to calculate this multi-dimensional integral (Tallis, 1961; Utz, 1969).
-
-
-Computation of the expected value of $y$ requires computation of the following multi-dimensional integral over the restricted area defined by the selection. Let \eqn{\Omega=\{x_i \geq u_i; \, 1\leq i\leq k\}}, \eqn{U=\{u_1,...,u_k\}}, \eqn{\phi_k}: the density function of the multivariate normal distribution. The integral is given by  \eqn{E_{\Omega}(y)  = \int_{-\infty} ^\infty y(x) \int_0^\infty...\int_0^\infty \phi_k(X; U, \Sigma) \,dx_1...dx_k dy}
+More details are in the JSS paper section 3.1.
 
 
 
-
-For further details about the whole project (selection gain for Double haploids and selection gain with markers), please contact the project contact person. The most important function is "multistageselection", which calculates the selection gain from given selection fraction and correlation matrix.
 }
 
 \value{
@@ -53,26 +49,25 @@ For further details about the whole project (selection gain for Double haploids 
   }
 \references{
 
-W.G. Cochran. Improvent by means of selection. In: Proceedings Second Berkeley Symposium on Math Stat Prof, pp449-470, 1951
+
+A. Genz and F. Bretz. Computation of Multivariate Normal and t Probabilities. Lecture Notes in Statistics, Vol. 195, Springer-Verlag, Heidelberg, 2009.
+
+A. Genz, F. Bretz, T. Miwa, X. Mi, F. Leisch, F. Scheipl and T. Hothorn. mvtnorm: Multivariate normal and t distributions. R package version 0.9-9, 2010.
 
 G.M. Tallis. Moment generating function of truncated multi-normal distribution. Journal of the Royal Statistical Society, Series B, 23(1):223-229, 1961.
 
 H.F. Utz. Mehrstufenselecktion in der Pflanzenzuechtung. Doctor thesis, University Hohenheim, 1969.
 
+W.G. Cochran. Improvent by means of selection. In: Proceedings Second Berkeley Symposium on Math Stat Prof, pp449-470, 1951.
+
 X. Mi, T. Miwa and T. Hothorn. Implement of Miwa's analytical algorithm of multi-normal distribution, R Journal, 1:37-39, 2009.
 
-A., Genz, F., Bretz. Computation of Multivariate Normal and t Probabilities. Lecture Notes in Statistics, Vol. 195, Springer-Verlag, Heidelberg, 2009
-
-A., Genz, F., Bretz, T., Miwa, X., Mi, F., Leisch, F., Scheipl, T., Hothorn. mvtnorm: Multivariate normal and t distributions. R package version 0.9-9, 2010.
+X. Mi, H.F. Utz. and A.E. Melchinger.  R package selectiongain: A tool for efficient calculation and optimization of the expected gain from multi-stage selection. J Stat Softw. (submitted)
 
 }
 
 
-\author{ Xuefei Mi, H. Friedrich Utz,  Albrecht E. Melchinger 
-
-Maintainer: Xuefei Mi, <mi at pz.uni-hohenheim.de>
-
-Contact person: Albrecht E. Melchinger, melchinger at uni-hohenheim.de 
+\author{ Xuefei Mi
 }
 \note{ No further notes
 
@@ -81,54 +76,9 @@ Contact person: Albrecht E. Melchinger, melchinger at uni-hohenheim.de
  No link
 }
 \examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or do  help(data=index)  for the standard data sets.
-
-
-corr=diag(4)
-
-corr12=0.3508
-corr[1,2]=corr12
-corr[2,1]=corr12
-
-corr13=0.3508
-corr[1,3]=corr13
-corr[3,1]=corr13
-
-corr14=0.4979
-corr[1,4]=corr14
-corr[4,1]=corr14
-
-corr23=0.3016
-corr[2,3]=corr23
-corr[3,2]=corr23
-
-corr24=0.5630
-corr[2,4]=corr24
-corr[4,2]=corr24
-
-corr34=0.5630
-corr[3,4]=corr34
-corr[4,3]=corr34
-
-
-quantile=c(0.4308,0.9804,1.8603)
-k=c(-200,quantile)
-# -200 is small enough to send the lower bound to be -Inf
-
-alphaofx=pmvnorm(lower=c(-200,quantile),corr=corr)
-
-multistagegain(k=c(-200,quantile),corr=corr,alphaofx,sum.dim=4)
-
-
-
-#####
-# new code for adapt the window input of the red-R
-#####
 
 k=c(-200,0.4308,0.9804,1.8603)
-
+Q=c(0.4308,0.9804,1.8603)
 corr=matrix( c(1,       0.3508,0.3508,0.4979,
                0.3508  ,1,     0.3016,0.5630,
                0.3508,  0.3016,1     ,0.5630,
@@ -136,19 +86,16 @@ corr=matrix( c(1,       0.3508,0.3508,0.4979,
               nrow=4  
 )
 
-sum.dim=4
 
-alphaofx=pmvnorm(lower=k,corr=corr)
 
-multistagegain(k=k,corr=corr,alphaofx,sum.dim=4)
+multistagegain(Q=Q,corr=corr)
 
 
 #####
-# new code for testing the parameter stages
+# code for testing the parameter stages
 #####
 
-multistagegain(k=k,corr=corr,alphaofx,sum.dim=4,stages=TRUE)
-
+multistagegain(Q=Q,corr=corr,stages=TRUE)
 
 
 
