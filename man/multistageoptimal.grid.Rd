@@ -1,8 +1,8 @@
 \name{multistageoptimal.grid}
 \alias{multistageoptimal.grid}
 %- Also NEED an '\alias' for EACH other topic documented here.
-\title{Function for optimizing multi-stage selection with grid algorithm for fixed correlation matrix}
-\description{This function is used to calculate the maximum of \eqn{\Delta G(y)} with fixed correlation matrix.
+\title{Optimizing with grid algorithm for fixed correlation matrix}
+\description{This function calculates the maximum of \eqn{\Delta G(y)} with fixed correlation matrix by using grid algorithm.
   
 }
 \usage{
@@ -14,59 +14,62 @@ detail=FALSE,alg)
 \arguments{
 
  
-\item{N.upper}{is the vector of up limits of number of candidates X.}
+\item{N.upper}{Vector with length n. It is the vector of uppper limits of candidates X.}
 
-\item{N.lower}{is the vector of low limits of number of candidates X.}
+\item{N.lower}{Vector with length n. It is the vector of lower limits of candidates X.}
 
 
-\item{corr}{Correlation matrix of X. }
+\item{corr}{(n+1-dimensional matrix). It is the correlation matrix \eqn{\bm{\Sigma}^{*}} of true value y and selection indices X. More detail see \code{\link{multistagegain}}.}
 
-\item{num.grid}{ is the number of equally distanced points which divided the axis of \eqn{x_1} into \eqn{num.grid-1} intervals and there are \eqn{(num.grid-1)^n} grids in a n dimensional hyper cube. The default value of num.grid is 11, so the hyper cube is divided into \eqn{10^n} parts by the grid points. If the grid point is more than the maximum number of certain stage i, then the grid number of this stage will equal to the number of grid points, i.e., if \eqn{num.grid > N_i}, then the number of grid points for the i-th axis is \eqn{N_i}.}
+\item{num.grid}{ An integer value. It is the number of equally distanced points which divided the axis of \eqn{x_1} into \eqn{num.grid-1} intervals and there are \eqn{(num.grid-1)^n} grids in a n dimensional hyper cube. The default value of num.grid is 11, so the hyper cube is divided into \eqn{10^n} parts by the grid points. If the grid point is more than the maximum number of certain stage i, then the grid number of this stage will equal to the number of grid points, i.e., if \eqn{num.grid > N_i}, then the number of grid points for the i-th axis is \eqn{N_i}.}
 
-\item{Budget}{contains the value of total budget.}
+\item{Budget}{A double value. It contains the value of total budget.}
 
-\item{CostC}{ contains the costs of producing or identifying a candidate.}
+\item{CostC}{A double value. It contains the costs of producing and identifying a candidate.}
 
-\item{CostTv}{ contains a vector with length n reflecting the cost of evaluating a candidate in the tests performed at stage i, i=1,...,n. The cost might vary in different stages.}
+\item{CostTv}{Vector with length n. It contains a vector with length n reflecting the cost of evaluating a candidate at stage i, i=1,...,n. The costs might vary in different stages.}
 
-\item{N.fs}{ is the number of final selected candidates.}
+\item{N.fs}{An integer value. It is the number of final selected candidates.}
 
-\item{detail}{ is the control parameter to decide if the result of all the grids will be given or only the maximum.}
+\item{detail}{ Logical. It is the control parameter to decide if the result of all the grids will be given (if TRUE) or only the maximum (if FALSE).}
 
-\item{alg}{is used to switch between two algorithms. If alg = GenzBretz(), which is by default, the quasi-Monte Carlo algorithm from Genz(1999) will be used. If alg = Miwa(), the program will use the Miwa algorithm (Mi2009), which an analytical solution of the MVN integral (Miwa2003). Miwa's algorithm has higher accuracy (7 digits) than quasi-Monte Carlo algorithm (5 digits), however the computational speed is also slower. Therefore, we recommend the user to use the default value of this parameter.}
+\item{alg}{An object used to switch between two algorithms. More detail see \code{\link{multistagegain}}. }
 
 }
-\details{ 
+\details{Suppose we start with \eqn{N_1} candidates in stage one. Based on the evaluation of the \eqn{N_i} candidates in stage \eqn{i}, the best \eqn{N_{i+1}} candidates, i.e., those with \eqn{x_i \geq q_i}, are promoted to the next stage, where they are evaluated with even higher intensity to obtain more precise estimates of the true value \eqn{y}. The goal of the whole selection scheme is to select the best \eqn{N_{n+1}} candidates after \eqn{n} stages of selection.
 
-More details are in the JSS paper section 3.5.
+In practice, the selection program has only a limited budget \eqn{B} to cover all costs such as (i) identifying or producing the initial \eqn{N_1} candidates and (ii) evaluating the \eqn{N_i} candidates in stage \eqn{i}. For a given testing scheme with \eqn{\textbf{N}=(N_1,\ldots,N_n)} candidates in the \eqn{i}-th stage of selection (\eqn{i=1,\ldots,n}), the costs may be given by the cost function \eqn{C(\omega)}. Thus, the set of admissible allocations \eqn{\Omega (B)} of the candidates to the various stages of selection is given by 
+
+
+\deqn{
+\Omega (B):= \{ \omega =\textbf{N}|C(\omega)\leq B\}
+} 
  
+Hence, our goal is to find \eqn{\tilde{\omega} \in \Omega (B)} with 
+
+\deqn{
+\Delta G(y|\textbf{S}_{\tilde{\omega}}, \Sigma^{*}) = \underbrace{max}_{\omega \in \Omega (B)} \Delta G(y|\textbf{S}_{\omega},\Sigma^{*}),
+} 
+ 
+where \eqn{\textbf{S}_{\omega}} refers to the truncation point \eqn{\textbf{Q}} corresponding to \eqn{\textbf{A}=\{ \alpha_1,\ldots,\alpha_n \}}, with \eqn{\alpha_i=N_{i+1}/N_i} for \eqn{i=1,\ldots,n}. The matrix \eqn{ \bm{\Sigma}^{*}} is determined by the correlations among test scores \eqn{x_i} obtained in the \eqn{n} stages of selection as well as their correlations to the target value \eqn{y}. Hence, for given but possibly different testing procedures in each stage,  \eqn{\bm{\Sigma}^{*}} is fixed, independent of the choice of \eqn{\textbf{N}}.
+
+
+In many applications in breeding and other fields, the choice of \eqn{\textbf{N}} does not affect the correlation matrix \eqn{\bm{\Sigma}^{*}} for the candidates. Examples include different types of average in the various stages of selection such as tests for evaluating the disease symptoms (e.g., test of fusarium resistance by visual recording of disease symptoms, estimation of mycotoxin concentration by NIRS, ELISA or GC-MS) or genomic usages with different prediction accuracy and costs (marker arrays with different coverage of the genome, transcript and for metabolic profiles). All these situations can be coped within this frame work outlined above.
+
+
+The simplest way to find the maximum is to do a full scan of the entire set \eqn{\Omega (B)}, which calculates \eqn{\Delta G(y|\textbf{S}_{\omega}, \bm{\Sigma}^{*}) } for all possible allocations of \eqn{\omega (B)} to determine \eqn{\tilde{\omega}} yielding the largest \eqn{\Delta G}. However, this is very time consuming. An alternative solution is to use grid search, which divides the whole set \eqn{\Omega (B)} into several grids (Kim 1997).
 
 }
 \value{
 If \eqn{\texttt{detail}} = FALSE, the output of this functions is a vector with the optimal number of candidates in each stage (\eqn{\textbf{N}}) and the maximum \eqn{\Delta G(y)}. Otherwise, the result for all the grid points, which have been calculated, will be exported as a table.}
 \references{
-
-A. Genz and F. Bretz. Computation of Multivariate Normal and t Probabilities. Lecture Notes in Statistics, Vol. 195, Springer-Verlag, Heidelberg, 2009.
-
-A. Genz, F. Bretz, T. Miwa, X. Mi, F. Leisch, F. Scheipl and T. Hothorn. mvtnorm: Multivariate normal and t distributions. R package version 0.9-9, 2010.
-
-G.M. Tallis. Moment generating function of truncated multi-normal distribution. Journal of the Royal Statistical Society, Series B, 23(1):223-229, 1961.
-
-H.F. Utz. Mehrstufenselecktion in der Pflanzenzuechtung. Doctor thesis, University Hohenheim, 1969.
-
-W.G. Cochran. Improvent by means of selection. In: Proceedings Second Berkeley Symposium on Math Stat Prof, pp449-470, 1951.
-
-X. Mi, T. Miwa and T. Hothorn. Implement of Miwa's analytical algorithm of multi-normal distribution, R Journal, 1:37-39, 2009.
-
-X. Mi, H.F. Utz. and A.E. Melchinger.  R package selectiongain: A tool for efficient calculation and optimization of the expected gain from multi-stage selection. J Stat Softw. (submitted)
-
-
- }
+Kim, J. (1997). Iterated Grid Search Algorithm on Unimodal Criteria. Ph.D. thesis, Virginia Polytechnic Institute and State University.
+}
 \author{ Xuefei Mi}
-\note{ no further comment
+\note{No further comment
 
 }
-\seealso{ selectiongain() }
+\seealso{ \code{\link{multistagegain}} }
 \examples{
 
  
@@ -79,6 +82,45 @@ corr=matrix( c(1,       0.3508,0.3508,0.4979,
 
 multistageoptimal.grid(N.upper=rep(100,3), corr=corr, Budget=200, CostC=0.5, N.fs=5)
 
+
+correlation=matrix(c(
+   1,0.2,0.3,0.5,
+   0.2,1,0,0,
+   0.3,0,1,0,
+   0.5,0,0,1 ),
+4,4)
+
+CostV=c(1,10,20)
+
+multistageoptimal.grid(N.upper=c(1000,200,100)+1, corr=correlation,
+Budget=2200, CostC=0, CostTv=CostV, N.fs=5)
+
+
+#######  
+# IMPORTANT 
+#######
+
+# in order to reduce the time of checking in CRAN only the first breeding scheme will be checked
+
+# if you want to run all 5 schemes you have to change the following code, 
+# just simply remove the number sign.
+
+#######  
+# change the code below
+#######
+
+
+#multistageoptimal.nlm(N.upper=c(1000,200,100), corr=correlation, 
+#Budget=2200, CostC=0, CostTv=CostV, N.fs=5)
+
+#multistageoptimal.nlm(N.upper=c(1000,200,100), corr=correlation, 
+#Budget=2200, CostC=0, CostTv=CostV, N.fs=5,ini.value=c(701,81,31))
+
+#multistageoptimal.grid(N.upper=c(1000,200,100)+1, corr=correlation, 
+#Budget=2200, CostC=0, CostTv=CostV, N.fs=5,num.grid=21)
+
+#multistageoptimal.nlm(N.upper=c(1000,200,100), corr=correlation, 
+#Budget=2200, CostC=0, CostTv=CostV, N.fs=5,ini.value=c(800,100,20))
 
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

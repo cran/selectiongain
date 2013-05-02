@@ -3,7 +3,8 @@
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{Function for calculating the selection gain in each stage}
 \description{
-In some situations, the user wants to know the increase of \eqn{\Delta G(y)} for each stage so that it is possible to determine the stage which contributes most to \eqn{\Delta G(y)}. This function calculates \eqn{\Delta G(y)} stepwise for each stage. 
+
+ This function calculates \eqn{\Delta G(y)} stepwise for each stage. 
 }
 \usage{
 multistagegain.each(Q, corr, alg, lim.y)
@@ -12,40 +13,25 @@ multistagegain.each(Q, corr, alg, lim.y)
 \arguments{
 
 
-\item{Q}{ (length n) refers to the coordinates of the truncation points Q, which is the output of the next function (\pkg{multistagetp}) that we are going to introduced.}
+\item{Q}{ Vector with length n. It refers to the coordinates of the truncation points Q, which is the output of the function \code{\link{multistagetp}}.}
   
-\item{corr}{(n+1-dimensional matrix) is the correlation matrix of y and X. The correlation matrix must be symmetric and positive-definite. Before starting the calculations, the user is recommended to check the correlation matrix, which is usually obtained by analysis of one or several experiments designed for estimating covariance components as well as phenotypic and genotypic correlations.}
+\item{corr}{(n+1-dimensional matrix). It is the correlation matrix \eqn{\bm{\Sigma}^{*}} of true value y and selection indices X. More detail see \code{\link{multistagegain.each}}.}
 
-\item{alg}{is used to switch between two algorithms. If alg = GenzBretz(), which is by default, the quasi-Monte Carlo algorithm from Genz(1999) will be used. If alg = Miwa(), the program will use the Miwa algorithm (Mi2009), which an analytical solution of the MVN integral (Miwa2003). Miwa's algorithm has higher accuracy (7 digits) than quasi-Monte Carlo algorithm (5 digits), however the computational speed is also slower. Therefore, we recommend the user to use the default value of this parameter.}
+
+\item{alg}{An object used to switch between two algorithms. More detail see \code{\link{multistagegain}}.}
  
-\item{lim.y}{ is the lower limit of y and is set to -200 as default, which is on the safe side.} 
+\item{lim.y}{The lower limit of y as double, and set to -200 as default, which is on the safe side.} 
 
 }
-\details{This function calculates the well-known selection gain \eqn{\Delta G(y)}, which is described by Cochran (1951). For one-stage selection the gain is defined as \eqn{\Delta G (y) = i \rho_{y} \rho_{1}}, where \eqn{i} is the selection intensity, \eqn{\rho_{1}} is the correlation between the true breeding value and the selection index \eqn{y} (Utz 1969). 
-
-More details are in the JSS paper section 3.2.
+\details{In some situations, the user wants to know the increase of \eqn{\Delta G(y)} in each stage so that it is possible to determine the stage which contributes most to \eqn{\Delta G(y)}.
 }
 
 \value{
-  The output is given as \eqn{(\Delta G_1(y), \Delta G_2(y)-\Delta G_1(y), \Delta G_3(y)-\Delta G_2(y), ...)$ where $\Delta G_i(y)} refers to the total selection gain after the first i stages of selection. 
+  The output is given as \eqn{(\Delta G_1(y), \Delta G_2(y)-\Delta G_1(y), \Delta G_3(y)-\Delta G_2(y), ...)} where \eqn{\Delta G_i(y)} refers to the total selection gain after the first i stages of selection. 
   }
-\references{
+%\references{
 
-A. Genz and F. Bretz. Computation of Multivariate Normal and t Probabilities. Lecture Notes in Statistics, Vol. 195, Springer-Verlag, Heidelberg, 2009.
-
-A. Genz, F. Bretz, T. Miwa, X. Mi, F. Leisch, F. Scheipl and T. Hothorn. mvtnorm: Multivariate normal and t distributions. R package version 0.9-9, 2010.
-
-G.M. Tallis. Moment generating function of truncated multi-normal distribution. Journal of the Royal Statistical Society, Series B, 23(1):223-229, 1961.
-
-H.F. Utz. Mehrstufenselecktion in der Pflanzenzuechtung. Doctor thesis, University Hohenheim, 1969.
-
-W.G. Cochran. Improvent by means of selection. In: Proceedings Second Berkeley Symposium on Math Stat Prof, pp449-470, 1951
-
-X. Mi, T. Miwa and T. Hothorn. Implement of Miwa's analytical algorithm of multi-normal distribution, R Journal, 1:37-39, 2009.
-
-X. Mi, H.F. Utz. and A.E. Melchinger.  R package selectiongain: A tool for efficient calculation and optimization of the expected gain from multi-stage selection. J Stat Softw. (submitted)
-
-}
+%}
 
 
 \author{ Xuefei Mi
@@ -54,7 +40,7 @@ X. Mi, H.F. Utz. and A.E. Melchinger.  R package selectiongain: A tool for effic
 
 }
 \seealso{
-selectiongain
+\code{\link{multistagegain}}
 }
 \examples{
 k=c(-200,0.4308,0.9804,1.8603)

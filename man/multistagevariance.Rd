@@ -3,11 +3,7 @@
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{Expected gain for k-stages selection}
 \description{
-This function uses the algorithm described by Tallis(1964) to calculate the variance after multi-stage selection. 
-The variance among candidates of y in the selected area \eqn{\textbf{S}_{Q}} is defined as the second central moment, \eqn{\psi_n(y)=E(Y^2|\textbf{S}_{Q}) - \left[E(Y|\textbf{S}_{Q})\right]^2}, where
-\eqn{
-E(Y^2|\textbf{S}_{Q})  = \alpha^{-1} \int_{-\infty} ^\infty \int_{q_{1}}^\infty...\int_{q_{n}}^\infty  y^2\, \phi_{n+1}(\textbf{x}^{*}; \bm{\Sigma}^{*}) \, d \textbf{x}^*}
-
+This function uses the algorithm described by Tallis (1961) to calculate the variance (second moment) after multi-stage selection. 
 
 }
 \usage{
@@ -15,43 +11,55 @@ multistagevariance(Q, corr, alg, lim.y)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-\item{Q}{ (length n) refers to the coordinates of the truncation points Q, which is the output of the next function (\pkg{multistagetp}) that we are going to introduced.}
   
-\item{corr}{(n+1-dimensional matrix) is the correlation matrix of y and X. The correlation matrix must be symmetric and positive-definite. Before starting the calculations, the user is recommended to check the correlation matrix, which is usually obtained by analysis of one or several experiments designed for estimating covariance components as well as phenotypic and genotypic correlations.}
+\item{Q}{ Vector with length n. It refers to the coordinates of the truncation points Q, which is the output of the function \code{\link{multistagetp}} that we are going to introduced.}
+  
+\item{corr}{(n+1)-dimensional matrix. It is the correlation matrix of true value y and selection indices X.  More detail see \code{\link{multistagegain}}.}
 
-\item{alg}{is used to switch between two algorithms. If alg = GenzBretz(), which is by default, the quasi-Monte Carlo algorithm from Genz(1999) will be used. If alg = Miwa(), the program will use the Miwa algorithm (Mi2009), which an analytical solution of the MVN integral (Miwa2003). Miwa's algorithm has higher accuracy (7 digits) than quasi-Monte Carlo algorithm (5 digits), however the computational speed is also slower. Therefore, we recommend the user to use the default value of this parameter.}
+\item{alg}{An object used to switch between two algorithms. More detail see \code{\link{multistagegain}}.}
  
-\item{lim.y}{is the lower limit of y and is set to -200 as default, which is on the safe side.} 
-  
+\item{lim.y}{The lower limit of y as double, and set to -200 as default, which is on the safe side.} 
+   
 }
+
+
 \details{
-More details are in the JSS paper section 3.4.
+
+The theory for multi-stage selection is based on the first moment (mathematical expectation) of the true value \eqn{y} in the selected area Cochran (1951). The \eqn{\Delta G(y)} is defined as the difference of the mathematical expectation of \eqn{y} after selection and the corresponding value before selection.
+
+  For simplicity, the variance of \eqn{y} is set to \eqn{1}, i.e., \eqn{\sigma_{y}^2=1}. If \eqn{\sigma_{y}^2 \neq1}, the selection gain and the variance among the selected candidates have to be multiplied with \eqn{\sigma_{y}} or \eqn{\sigma_{y}^2}, respectively. In order to calculate the expectation of \eqn{y} after \eqn{n} stages of selection, we have to determine the one-sided integral of \eqn{y} over the right-sided area \eqn{\textbf{S}_{Q}=\{x_1>q_1,\ldots,x_n>q_n\}} defined by the truncation point \eqn{\textbf{Q}=\{q_1,q_2,\ldots,q_n\}}. The value of \eqn{\Delta G_n(y)} is noted as \eqn{E(Y;\textbf{S}_{Q})}. We have to distinguish it with \eqn{E(Y)}, which is the integral of \eqn{y} over the whole area \eqn{\textbf{S}=\{x_1>-\infty,\ldots,x_n>-\infty\}} with \eqn{\textbf{Q}=\{-\infty,\ldots,-\infty\}} as the truncation point. Thus, the expectation of \eqn{y} after \eqn{n} stages of selection is,
+
+\deqn{
+ \Delta G_n(y, \textbf{S}_{Q}) = E(Y;\textbf{S}_{Q})= \alpha^{-1} \int_{-\infty} ^\infty   \int_{q_{1}}^\infty\ldots\int_{q_{n}}^\infty y \,  \phi_{n+1}(\textbf{x}^{*};\textbf{U}^{*}; \bm{\Sigma}^{*}) \, d \textbf{x}^*, 
+}
+
+where
+\deqn{ 
+\alpha = \Phi_n (\textbf{Q},\bm{\Sigma})= \int_{q_{1}}^\infty\ldots\int_{q_{n}}^\infty \phi_{n}(\textbf{x};\textbf{U}; \bm{\Sigma}) \, d \textbf{x}, \label{equ-alpha0}
+}
+
+
+and \eqn{\Phi_n} is the distribution function of the MVN, \eqn{\phi_{n}} is the density function of MVN, and \eqn{\bm{\Sigma}} is the correlation matrix of \eqn{\textbf{X}}. \eqn{\bm{\Sigma}^{*}} is the correlation matrix of \eqn{\textbf{X}^*}. It comprises \eqn{\bm{\Sigma}}, but has one dimension more pertaining to the correlations between \eqn{Y=X_0} and the selection indices \eqn{\textbf{X}}.  The mean vector \eqn{\textbf{U}^{*}=\{u_0,u_1,\ldots,u_n\}} of \eqn{\phi_{n+1}} is omitted, assuming \eqn{\textbf{U}^{*}=\{0,0,\ldots,0\}} without loss of generality, and consequently, we write shortly \eqn{\phi_{n+1} (\textbf{x}^{*};\bm{\Sigma}^{*})} and \eqn{\phi_{n} (\textbf{x};\bm{\Sigma})}. The selection gain is the first moment, while the selected fraction \eqn{\alpha} over all \eqn{n} stages of selection corresponds to the zero-th moment of the one-sided truncated MVN distribution of \eqn{\textbf{X}}. 
+
+The variance among candidates of y in the selected area \eqn{\textbf{S}_{Q}} is defined as the second central moment, \eqn{\psi_n(y)=E(Y^2;\textbf{S}_{Q}) - \left[E(Y;\textbf{S}_{Q})\right]^2}, where
+
+\deqn{
+E(Y^2;\textbf{S}_{Q})  = \alpha^{-1} \int_{-\infty} ^\infty \int_{q_{1}}^\infty...\int_{q_{n}}^\infty  y^2\, \phi_{n+1}(\textbf{x}^{*}; \bm{\Sigma}^{*}) \, d \textbf{x}^*}
+
 }
 
 \value{
-The output is the value of \eqn{\psi_n(y|\textbf{S}_{Q})=E(y^2|\textbf{S}_{Q})-[E(y|\textbf{S}_{Q})]^2}.
-
+The output is the value of \eqn{\psi_n(y;\textbf{S}_{Q})=E(y^2;\textbf{S}_{Q})-[E(y;\textbf{S}_{Q})]^2}.
   }
-  
-  
-  
-\references{
+%\references{}
 
-G.M. Tallis. Moment generating function of truncated multi-normal distribution. Journal of the Royal Statistical Society, Series B, 23(1):223-229, 1961.
-
-X. Mi, T. Miwa and T. Hothorn. Implement of Miwa's analytical algorithm of multi-normal distribution, R Journal, 1:37-39, 2009.
-
-X. Mi, H.F. Utz. and A.E. Melchinger.  R package selectiongain: A tool for efficient calculation and optimization of the expected gain from multi-stage selection. J Stat Softw. (submitted)
+\author{Xuefei Mi
 }
-
-
-\author{ Xuefei Mi
-}
-\note{ No further notes
+\note{No further notes
 
 }
 \seealso{
- No link
+ \code{\link{multistagegain}}
 }
 \examples{
 Q =c(0.4308,0.9804,1.8603)

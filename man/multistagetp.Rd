@@ -4,47 +4,64 @@
 \title{Function for calculating the truncation point}
 \description{
   
-  This function calculates the coordinates of the truncation point Q for given selected fractions A. The R function uniroot in core package stats is called internally to solve the truncation point equations. 
+  This function calculates the coordinates of the truncation point Q for given selected fractions \code{alpha}. The R function \code{\link{uniroot}} in core package stats is called internally to solve the truncation point equations. 
 }
 \usage{
 multistagetp(alpha, corx, alg)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{alpha}{Probability vector \eqn{\vec{\alpha}} for random variable X. In plant breeding, it is also called the selected fraction.}  
-  \item{corx}{Correlation matrix of X. }
-  \item{alg}{It decides which algorithm will be used, the Genz and Bretz' algorithm is used by default. The Miwa's algorithm can be optional (Mi. et al. 2009; Genz. et al. 2010).}
+  \item{alpha}{Probability vector \eqn{\vec{\alpha}}, with length n, for random variable X. In other disciplines, such as plant breeding, it is also called the selected fraction.}  
+  
+  
+  \item{corx}{n-dimensional matrix. It is the correlation matrix of selection indices X. More detail see \code{\link{multistagegain}}.}
+    
+\item{alg}{An object used to switch between two algorithms. More detail see \code{\link{multistagegain}}.}
+
 }
+
 \details{ 
 
-This function calculates the non-equi coordinate quantile vector \eqn{Q=\{q_{1},q_{2},...,q_{n}\}} for a multivariate normal distribution from a given alpha vector \eqn{\vec{\alpha}=\{ \alpha_{1},\alpha_{2},...,\alpha_{n} \}}. It can be compared with the function qmvnorm() in R-package \pkg{mvtnorm}, which calculates the equi coordinate quantile  \eqn{q} for multi-variate normal distribution from a given alpha scalar.
+This function calculates the non-equi coordinate quantile vector \eqn{Q=\{q_{1},q_{2},...,q_{n}\}} for a multivariate normal distribution from a given selection fraction vector \eqn{\textbf{A}=\{ \alpha_{1},\alpha_{2},...,\alpha_{n} \}}. It can be compared with the function \code{\link{qmvnorm}} in package \pkg{mvtnorm}, which calculates the equi-coordinate quantile  \eqn{q} for multi-variate normal distribution from a given alpha scalar.
  
-More details are in the JSS paper section 3.2.
+ 
+The truncation point \eqn{\textbf{Q} } must be calculated from the vector of selected fractions \eqn{\textbf{A} }. The coordinates \eqn{q_i } are obtained by inverting the following equations sequentially: 
+
+\deqn{ 
+\alpha_1= f (q_1) =\int_{q_1}^{\infty} \phi_1 (x_1) \, dx_1 \label{equ-alpha1},
+} 
+which yields \eqn{q_1 };
+ 
+\deqn{
+\alpha_1 \alpha_2= f (q_1,q_2) =\int_{q_2}^{\infty} \int_{q_1}^{\infty}  \phi_2 (x_1,x_2; \rho_{x_1,x_2})\, dx_1 \,dx_2,
+}
+
+which yields \eqn{q_2 } for given values of \eqn{q_1 }, \eqn{\alpha_1 } and \eqn{\alpha_2 }, and so on for \eqn{i=3,4,\ldots,n }. Here we have assumed that \eqn{\bm{\Sigma} } is diagonal, so the above inverting function can be simplified into
+
+\deqn{
+ \alpha_i=\int_{q_i}^{\infty} \phi_1 (x_i)\, d x_i \label{equ-simple}
+}
+
+If \eqn{\bm{\Sigma} } is not diagonal, the value of \eqn{q_n } is finally obtained by using \eqn{q_{1},q_{2},\ldots,q_{n-1} } and \eqn{\alpha_{1},\alpha_{2},\ldots,\alpha_{n} }:
+
+\deqn{
+ \prod_1^n \alpha_i=\int_{q_n}^{\infty}\int_{q_{n-1}}^{\infty}\ldots\int_{q_1}^{\infty} \phi_n (\bm{X};\bm{\Sigma})\, d \textbf{x} \label{equ-alpha2}
+}
+
+These equations can be solved numerically via a fast root search algorithm, which was described for example by Brent (1973) and implemented in the function \code{\link{uniroot}}, though the function \code{\link{qmvnorm}}. 
+
 
 }
 \value{
   The out come is a vector for the coordinates.
 }
 \references{
-
-A. Genz and F. Bretz. Computation of Multivariate Normal and t Probabilities. Lecture Notes in Statistics, Vol. 195, Springer-Verlag, Heidelberg, 2009.
-
-A. Genz, F. Bretz, T. Miwa, X. Mi, F. Leisch, F. Scheipl and T. Hothorn. mvtnorm: Multivariate normal and t distributions. R package version 0.9-9, 2010.
-
-G.M. Tallis. Moment generating function of truncated multi-normal distribution. Journal of the Royal Statistical Society, Series B, 23(1):223-229, 1961.
-
-H.F. Utz. Mehrstufenselecktion in der Pflanzenzuechtung. Doctor thesis, University Hohenheim, 1969.
-
-W.G. Cochran. Improvent by means of selection. In: Proceedings Second Berkeley Symposium on Math Stat Prof, pp449-470, 1951
-
-X. Mi, T. Miwa and T. Hothorn. Implement of Miwa's analytical algorithm of multi-normal distribution, R Journal, 1:37-39, 2009.
-
-X. Mi, H.F. Utz. and A.E. Melchinger.  R package selectiongain: A tool for efficient calculation and optimization of the expected gain from multi-stage selection. J Stat Softw. (submitted)
+Brent, R. (1973) Algorithms for Minimization without Derivatives. Prentice-Hall, Englewood Cliffs, New Jersey.
  }
 \author{ Xuefei Mi}
-\note{ When a vector \eqn{A} is given, the quantiles are calculated consecutively to satisfy the given \eqn{A}. The calculation from other direction to \eqn{-\infty} of the integral is also possible for qmvnorm(). But not for this function, the user have to reverse the integral.  
+\note{ When a vector \eqn{A} is given, the quantiles are calculated consecutively to satisfy the given \eqn{A}. The calculation from other direction to \eqn{-\infty} of the integral is also possible for \code{\link{qmvnorm}}. But not for this function, the user have to reverse the integral.  
 }
-\seealso{ selectiongain(), qnorm() }
+\seealso{ \code{\link{multistagegain}}}
 \examples{
  dim=3
  alpha=rep(0,dim)

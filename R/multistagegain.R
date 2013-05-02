@@ -1,127 +1,102 @@
+# mutistagegain.R author: xuefei mi, 27-03-2013, for selectiongain package v2.0.2
+
 `multistagegain` <-
 function(Q,corr,alg= GenzBretz(),lim.y=-200, stages=FALSE)
 {
-
-k=c(lim.y,Q)
-
-sum.dim=length(k)
-
-alphaofx=pmvnorm(lower=k,corr=corr)
- 
-dim=sum.dim
+  k=c(lim.y,Q)
+  sum.dim=length(k)
+  alphaofx=pmvnorm(lower=k,corr=corr)
+  dim=sum.dim
 
 # check if k[i]= inf
 
-for (i in 1:dim)
-{
-   if (is.infinite(k[i])==TRUE)
-   {
-     k[i]=-lim.y
-   }
-}
+  for (i in 1:dim)
+  {
+     if (is.infinite(k[i])==TRUE)
+     {
+       k[i]=-lim.y
+     }
+  }
 
-# check dim, 
+# check dim
 
-
-if (dim<2)
-{
-stop("dimension of k must bigger than 1, otherwise this is not one-stage selection")
-
-}else if(dim==2)
-{
+  if (dim<2)
+  {
+    stop("dimension of k must bigger than 1, otherwise this is not one-stage selection")
+  }else if(dim==2)
+  {
 
 # in the case of one stage selection, dim = 2
 
-
-gainresult=corr[1,2]*dnorm(k[2])/alphaofx
-
-
-}else
-{
+    gainresult=corr[1,2]*dnorm(k[2])/alphaofx
+  }else
+  {
 
 # calculate the gain according to Talis(1965)
 
-A=array(0,c(dim,dim))
+    A=array(0,c(dim,dim))
 
-for (i in 1 : dim)
-{  
-   for (j in 1 : dim)
-    {
-          if(i!=j)
-         {
-              A[i,j]= (k[j]-corr[i,j]*k[i])/ (1-corr[i,j]^2)^0.5
-          }
-    }
-}
-
-
-part.corr=array(1,c(dim,dim,dim))
-
-for (i in 1 : dim)
-{  
-   for (j in 1 : dim)
-    {
-         for (q in 1 : dim)
-         {
-         if(i!=j && q!=j && i!=q)
-
-            { part.corr[i,j,q]= (corr[i,j]-corr[i,q]*corr[j,q])/ ((1-corr[i,q]^2)^0.5 * (1-corr[j,q]^2)^0.5)
-             }
-          }
-
+    for (i in 1 : dim)
+    {  
+      for (j in 1 : dim)
+      {
+        if(i!=j)
+        {
+          A[i,j]= (k[j]-corr[i,j]*k[i])/ (1-corr[i,j]^2)^0.5
+        }
       }
-}
+    }
 
 
+      part.corr=array(1,c(dim,dim,dim))
 
+      for (i in 1 : dim)
+      {  
+        for (j in 1 : dim)
+        {
+          for (q in 1 : dim)
+          {
+            if(i!=j && q!=j && i!=q)
+            { 
+              part.corr[i,j,q]= (corr[i,j]-corr[i,q]*corr[j,q])/ ((1-corr[i,q]^2)^0.5 * (1-corr[j,q]^2)^0.5)
+            }
+          }
+        }
+      }
 
+      j3q<-function (q,A,part.corr,dim)
+      {            
+        lower=A[q,-q]
+        corr= part.corr[-q,-q,q]
+        output=pmvnorm(lower = lower, upper = rep(Inf,c(dim-1)), mean = rep(0, length(lower)), 
+        corr = corr, sigma = NULL, algorithm =  alg) 
+        output
+       }
 
-j3q<-function (q,A,part.corr,dim)
-
-{      
-    
-          
-    lower=A[q,-q]
-    corr= part.corr[-q,-q,q]
-
-
-    output=pmvnorm(lower = lower, upper = rep(Inf,c(dim-1)), mean = rep(0, length(lower)), 
-    corr = corr, sigma = NULL, algorithm =  alg) 
-    output
- }
-
-calculatx1<-function(A,part.corr,dim,corr,k,alpha3,stages=FALSE)
-{ 
- 
-   if (stages)
-   {
-   output=rep(0,dim)
-    i=1
-   for (i in 1 : dim)
- {
-   output[i]=corr[1,i]*dnorm(k[i])*j3q(i,A,part.corr,dim)/alpha3
- }
-   output[2:dim]
-   
-   }else
-{
-   
-   output=0
-   i=1
-   for (i in 1 : dim)
- {
-   output= output+ corr[1,i]*dnorm(k[i])*j3q(i,A,part.corr,dim)/alpha3
- }
-    output 
-}
-
-
-}
-  
-
-gainresult<-calculatx1(A=A,part.corr=part.corr,dim=dim,corr=corr,k=k,alpha3=alphaofx,stages=stages)
-
-}
-gainresult
+      calculatx1<-function(A,part.corr,dim,corr,k,alpha3,stages=FALSE)
+      {  
+        if (stages)
+        {
+          output=rep(0,dim)
+          i=1
+          for (i in 1 : dim)
+          {
+            output[i]=corr[1,i]*dnorm(k[i])*j3q(i,A,part.corr,dim)/alpha3
+          }
+          output[2:dim]
+        }else
+        {   
+          output=0
+          i=1
+          for (i in 1 : dim)
+          {
+            output= output+ corr[1,i]*dnorm(k[i])*j3q(i,A,part.corr,dim)/alpha3
+          }
+          output 
+        }
+      }
+      gainresult<-calculatx1(A=A,part.corr=part.corr,dim=dim,corr=corr,k=k,alpha3=alphaofx,stages=stages)
+    }
+  gainresult
 }
 
