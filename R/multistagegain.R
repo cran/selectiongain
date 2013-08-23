@@ -1,12 +1,14 @@
-# mutistagegain.R author: xuefei mi, 27-03-2013, for selectiongain package v2.0.2
+# mutistagecor.R author: xuefei mi, 11-03-2013, for selectiongain package v2.0.2
 
 `multistagegain` <-
-function(Q,corr,alg= GenzBretz(),lim.y=-200, stages=FALSE)
+function(corr, Q, Vg=1, alg= GenzBretz(), partial=FALSE)
 {
+  lim.y=-200
   k=c(lim.y,Q)
   sum.dim=length(k)
-  alphaofx=pmvnorm(lower=k,corr=corr)
+  alphaofx=pmvnorm(lower=k,corr=corr,algorithm=alg)
   dim=sum.dim
+  stages=partial
 
 # check if k[i]= inf
 
@@ -64,12 +66,11 @@ function(Q,corr,alg= GenzBretz(),lim.y=-200, stages=FALSE)
         }
       }
 
-      j3q<-function (q,A,part.corr,dim)
+      j3q<-function (q,A,part.corr,dim,alg)
       {            
         lower=A[q,-q]
         corr= part.corr[-q,-q,q]
-        output=pmvnorm(lower = lower, upper = rep(Inf,c(dim-1)), mean = rep(0, length(lower)), 
-        corr = corr, sigma = NULL, algorithm =  alg) 
+        output=pmvnorm(lower = lower, upper = rep(Inf,c(dim-1)), mean = rep(0, length(lower)),   corr = corr, sigma = NULL, algorithm =  alg) 
         output
        }
 
@@ -81,7 +82,7 @@ function(Q,corr,alg= GenzBretz(),lim.y=-200, stages=FALSE)
           i=1
           for (i in 1 : dim)
           {
-            output[i]=corr[1,i]*dnorm(k[i])*j3q(i,A,part.corr,dim)/alpha3
+            output[i]=corr[1,i]*dnorm(k[i])*j3q(i,A,part.corr,dim,alg)/alpha3
           }
           output[2:dim]
         }else
@@ -90,13 +91,13 @@ function(Q,corr,alg= GenzBretz(),lim.y=-200, stages=FALSE)
           i=1
           for (i in 1 : dim)
           {
-            output= output+ corr[1,i]*dnorm(k[i])*j3q(i,A,part.corr,dim)/alpha3
+            output= output+ corr[1,i]*dnorm(k[i])*j3q(i,A,part.corr,dim,alg)/alpha3
           }
           output 
         }
       }
       gainresult<-calculatx1(A=A,part.corr=part.corr,dim=dim,corr=corr,k=k,alpha3=alphaofx,stages=stages)
     }
-  gainresult
+  gainresult[[1]]*Vg^0.5
 }
 
