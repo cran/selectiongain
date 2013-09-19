@@ -1,8 +1,9 @@
-# mutistage.each.R author: xuefei mi, 28-03-2013, for selectiongain package v2.0.2
+# mutistagecor.R author: xuefei mi, 11-03-2013, for selectiongain package v2.0.2
 
 `multistagegain.each` <-
-function(Q,corr,alg=GenzBretz(),lim.y=-200)
-{
+function(corr,Q, Vg=1, alg=GenzBretz())
+{ 
+  lim.y=-200
   sum.dim=length(Q)+1
   k=c(lim.y,Q)
   gain.array = array (0,c(sum.dim-1))
@@ -13,12 +14,12 @@ function(Q,corr,alg=GenzBretz(),lim.y=-200)
    
   for (i in 2:c(sum.dim))   
   {
-     gain.array[i-1]= multistagegain(Q=k[2:i],corr[1:i,1:i],alg= GenzBretz(),lim.y=k[1])
+     gain.array[i-1]= multistagegain(Q=k[2:i],corr[1:i,1:i],alg= GenzBretz())
   }
   for (i in 2:c(sum.dim-1))
   { 
      gain.array[i]=gain.array[i]-gain.array[i-1]   
   } 
-gain.array
+gain.array*Vg^0.5
 }
 
