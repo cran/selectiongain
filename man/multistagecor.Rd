@@ -3,7 +3,7 @@
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{Function for calculating correlation matrix in a plant breeding context}
 \description{
-This function is used to calculate the correlation matrix \eqn{\bm{\Sigma}^{*}} of y and X (where y is the true genotypic value and \eqn{\bm{X}=\{X_1,...X_n \}} are the selection indices from each selection stage) for n-stage selection in plant breeding. It is assumed that the genetic structure of the candidates to be selected are genetically fixed, e.g., potential cultivars, clones, inbred lines or testcross progenies of inbred lines with the same or different testers in all stages.
+This function is used to calculate the correlation matrix \eqn{\bm{\Sigma}^{*}} of y and X (where y is the true genotypic value and \eqn{\bm{X}=\{X_1,...X_n \}} are the phenotypic values or selection indices, which is a linear combination of the the phenotypic values from each selection stage) for n-stage selection in plant breeding. It is assumed that the genetic structure of the candidates to be selected are genetically fixed, e.g., potential cultivars, clones, inbred lines or testcross progenies of inbred lines with the same or different testers in all stages.
 
   
 }
@@ -14,25 +14,25 @@ multistagecor(maseff,VGCAandE,VSCA,T,L,Rep,index,covscatype,detail)
 %- maybe also 'usage' for other objects documented here.
 \arguments{
 
-  \item{maseff}{ is the efficiency of Marker-Assisted Selection (MAS). The default value is NA. If a value between 0 and 1 is assigned to \code{maseff}, then the first selection stage will be considered as MAS (Heffner 2010).}
+  \item{maseff}{ is the efficiency of marker-assisted selection (MAS). The default value is NA, which means there is no MAS. If a value between 0 and 1 is assigned to \code{maseff}, then the first selection stage will be considered as MAS (Heffner et al., 2010).}
    
-  \item{VGCAandE}{is the vector of variance components of genetic effect, gene by location interaction, gene by year interaction, gene by location  by year interaction and the plot error. When \code{VSCA} is specified, it stands for the general combining ability.  The default value is {1,1,1,1,1}. Variances types listed in Longin (2007) can be used. E.g., \code{VGCAandE="VC2"} will set the value as {1,0.5,0.5,1,2}. }  
+  \item{VGCAandE}{is the vector of variance components of genetic effect, genotype \eqn{\times} location interaction, genotype \eqn{\times} year interaction, genotype \eqn{\times} location \eqn{\times} year interaction and the plot error. When \code{VSCA} is specified, it refers to the general combining ability, otherwise it stands for genetic effect.  The default value is {1,1,1,1,1}. Variances types listed in Longin et al. (2007) can be used. E.g., \code{VGCAandE="VC2"} will set the value as {1,0.5,0.5,1,2}. }  
  
   \item{VSCA}{is the vector of variance components for specific combining ability. The default value is {0,0,0,0}. }  
  
- \item{T}{is the vector of number of testers at each stage. If there is no testers applied in certain stage, the value of testers at this stage have to be 1. }  
+ \item{T}{is the vector of number of testers at each stage. If there is no tester applied in a certain stage, the value at this stage have to be 1. }  
 
-  \item{L}{is the vector of number of locations at each stages.}
+  \item{L}{is the vector of number of locations at each stage.}
   
   \item{Rep}{is the vector of number of replicates at each stage.}  
  
-  \item{index}{is the control parameter. If it equals TRUE, the optimum selection index of the Longin (2007) will be used in the calculation of correlation matrix without MAS. 
+  \item{index}{is the control parameter. If it equals TRUE, the optimum selection index of Longin et al. (2007) will be used in the calculation of correlation matrix without MAS. 
  }
 
    \item{covscatype}{is the type of the covariance. Longin's type (\code{covscatype}=c("LonginII")) is by default. }
    
 
-   \item{detail}{ is the control parameter to decide if the correlation matrix, optimal selection index and covariance matrix will be given or only the correlation matrix. The default value of it is FALSE.}
+   \item{detail}{ is the control parameter to decide if the correlation matrix, optimal selection index and covariance matrix will be given (\code{=TRUE}) or only the correlation matrix (\code{FALSE}). The default value of it is \code{FALSE}.}
 
 }
 \value{
@@ -60,7 +60,7 @@ multistagecor(VGCAandE="VC2",L=c(2,10),T=c(1,1),Rep=c(1,1),index=TRUE)
 VCgca=c(0.40,0.20,0.20,0.40,2.00)
 VCsca=c(0.20,0.10,0.10,0.20)
 corr.matrix = multistagecor (maseff=0.40, VGCAandE=VCgca,
-  VSCA=VCsca, T=c(1,1,5), L=c(1,3,8), Rep=c(1,1,1))
+VSCA=VCsca, T=c(1,1,5), L=c(1,3,8), Rep=c(1,1,1))
 
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

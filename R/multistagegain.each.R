@@ -1,12 +1,16 @@
 # mutistagecor.R author: xuefei mi, 11-03-2013, for selectiongain package v2.0.2
 
 `multistagegain.each` <-
-function(corr,Q, Vg=1, alg=GenzBretz())
+function(corr,Q, alg=GenzBretz())
 { 
+# pre-set interanl parameters
+  Vg=1 
   lim.y=-200
   sum.dim=length(Q)+1
   k=c(lim.y,Q)
   gain.array = array (0,c(sum.dim-1))
+
+# main function begins
   
 # The output is given as
 # (G1(y), G2(y)-G1(y),G3(y)-G2(y), ...), where Gi(y) refers to the total selection

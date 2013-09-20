@@ -1,46 +1,33 @@
 `multistagetp` <-
-function(alpha,  corr=NA, corx=NA, alg=GenzBretz())
+function(alpha,  corr=NA,  alg=GenzBretz())
 {
    # we add second choice for user
    
    # corr matrix can be directly inputted, corr is one dimension more than corx
    
-   if (is.na(corx)[1])
-   { 
+  # if (is.na(corx)[1])
+  # { 
      if (is.na(corr)[1])
      {
-       stop("one of the corr or corx must not be zero")
+       stop("the corr must not be NA")
      }else if (!is.na(corr)[1])
      {
        if (dim(corr)[1]==c(length(alpha)+1))
        {
-       corr=corr[-1,-1]
+         corr=corr[-1,-1]
+       }else if (dim(corr)[1]==c(length(alpha))) 
+       {
+         warning ("corr matrix must be one dimension more than alpha, the program still run, but please double check")   
+         corr=corr
        }else
        {
-         stop ("corr matrix must be one dimension more than alpha")
+         stop (" the dimension of corr matrix must be one more than the length alpha")
        }
      }
    
    
-   }else if (!is.na(corx)[1])
-   {
-     if (!is.na(corr)[1])
-     {
-       stop("both of the corr or corx must not be NA at the same time")
-     }else if (is.na(corr)[1])
-     {
-       if (dim(corx)[1]==c(length(alpha)))
-       {
-       corr=corx
-       }else
-       {
-         stop ("corx matrix must have dimension as alpha")
-       }
-     }
+  # }
    
-   }
-   
-
    
    
     dim=length(alpha)

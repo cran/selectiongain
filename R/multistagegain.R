@@ -1,14 +1,29 @@
 # mutistagecor.R author: xuefei mi, 11-03-2013, for selectiongain package v2.0.2
 
 `multistagegain` <-
-function(corr, Q, Vg=1, alg= GenzBretz(), partial=FALSE)
+function(corr, Q, alg= GenzBretz())
 {
+  
+# internal default parameters
+  Vg=1
+  partial=FALSE
+  stages=partial
   lim.y=-200
   k=c(lim.y,Q)
   sum.dim=length(k)
   alphaofx=pmvnorm(lower=k,corr=corr,algorithm=alg)
   dim=sum.dim
-  stages=partial
+
+# main function begins
+
+# check if Q and corr have the same dimension
+
+  if (length(Q)==dim(corr)[1]-1)
+  {
+  }else if (length(Q)!=dim(corr)[1]-1) 
+  {
+    stop("dimension of Q must be same as dim(corr)[1]+1")
+  }
 
 # check if k[i]= inf
 
@@ -98,6 +113,14 @@ function(corr, Q, Vg=1, alg= GenzBretz(), partial=FALSE)
       }
       gainresult<-calculatx1(A=A,part.corr=part.corr,dim=dim,corr=corr,k=k,alpha3=alphaofx,stages=stages)
     }
-  gainresult[[1]]*Vg^0.5
+
+  if (stages==TRUE)
+  {
+    gainresult*Vg^0.5
+  }else
+  {
+    gainresult[[1]]*Vg^0.5
+  }
+
 }
 
