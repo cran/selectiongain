@@ -3,38 +3,55 @@
 
 # modified at 28-06-2013, for 1MAS+2PS
 
-`multistageoptimum.grid`<-function(Vg=1, corr, num.grid=NA, width=NA,  Budget, CostProd=rep(0,length(N.upper)), CostTest=rep(1,length(N.upper)),Nf, detail=FALSE,alg=GenzBretz(),fig=FALSE, N.upper, N.lower)
+`multistageoptimum.grid`<-function(corr, Vg=1, num.grid=NA, width=NA,  Budget, CostProd=rep(0,length(N.upper)), CostTest=rep(1,length(N.upper)),Nf, alg=GenzBretz(),detail=FALSE,fig=FALSE, N.upper, N.lower)
 {
+
+# pre-define parameters 
+
    CostInitial=CostProd
    Vgca=Vg
    CostTv=CostTest  
    percent =0.0001
    N.fs=Nf
 
-	if (Budget> sum( N.upper*(CostTest+CostProd)))
-	{
-	  stop("budget is too large, try to set Budget < sum( N.upper*(CostTest+CostProd))")
-	}
-	
+# main function begins
+  if (length(CostTest)!= dim(corr)[1]-1)
+  {
+    stop( "dimension of CostTest has to be dim(corr)[1]-1")
+  }  
+  if (length(CostProd)!= dim(corr)[1]-1)
+  {
+    stop( "dimension of CostProd has to be dim(corr)[1]-1")
+  }  
 
 
+  if (Budget> sum( N.upper*(CostTest+CostProd)))
+  {
+    stop("N.upper is too small, try to set sum( N.upper*(CostTest+CostProd))>Budget")
+  }
+  	
 
-if (length(N.upper)>5 || length(N.upper)< 2)
-   {
-    stop( "dimension should be between 2 and 4")
-   }
+  if (length(N.upper)>5 || length(N.upper)< 2)
+  {
+    stop( "dimension of N.upper should be between 2 and 5")
+  }
    
- if (length(N.upper)!= length(N.lower))
-   {
+  if (length(N.upper)!= length(N.lower))
+  {
     stop( "dimension of upper and lower limit has to be equal")
-   }
+  }
  
- if ( is.na(num.grid[1]) & is.na(width[1]))
+   if (length(N.upper)!= dim(corr)[1]-1)
+  {
+    stop( "dimension of upper has to be dim(corr)[1]-1")
+  }
+
+  if ( is.na(num.grid[1]) & is.na(width[1]))
   {
     stop( "one of the num.grid or width should not be NA")
   }
  
- if ( !is.na(num.grid[1]) & !is.na(width[1]))
+  if ( !is.na(num.grid[1]) & !is.na(width[1]))
   {
     stop( " only one of the num.grid and width can be used, not both of them")
   }
@@ -51,9 +68,9 @@ if (length(N.upper)>5 || length(N.upper)< 2)
   }
      
   if (length(num.grid)==1)
-   {
+  {
     num.grid=rep(num.grid, length(N.upper)-1)
-   }
+  }
       
 
 # for N.upper=5,4,3,2, we prepare for the loops
@@ -61,34 +78,32 @@ if (length(N.upper)>5 || length(N.upper)< 2)
 
 # the first stage constraint is removed, because it will be come a constraint factor by Budget
 
-Nup=N.upper[1]
-Nlo=N.lower[1]
+  Nup=N.upper[1]
+  Nlo=N.lower[1]
 
-N.upper=N.upper[-1]
-N.lower=N.lower[-1]
+  N.upper=N.upper[-1]
+  N.lower=N.lower[-1]
 
 
-if (length(N.upper)==4)
-{
+  if (length(N.upper)==4)
+  {
    
- # grid for 1st dimension
-  z=array(0,num.grid)
-  
-  
-           if ((N.upper[1]-N.lower[1]+1)<num.grid[1])
-           {
-            loop.time=N.upper[1]-N.lower[1]+1
-            xNone <- seq.int(N.lower[1], N.upper[1], length.out=loop.time)
-           }else{
-            loop.time=num.grid[1]
-            xNone <- seq.int(N.lower[1], N.upper[1], length.out=loop.time)
-           }
-
-    maxz12=array(c(0,0),rep(loop.time,2))       
+# grid for 1st dimension
+     z=array(0,num.grid)
+     if ((N.upper[1]-N.lower[1]+1)<num.grid[1])
+     {
+        loop.time=N.upper[1]-N.lower[1]+1
+        xNone <- seq.int(N.lower[1], N.upper[1], length.out=loop.time)
+     }else
+     {
+        loop.time=num.grid[1]
+        xNone <- seq.int(N.lower[1], N.upper[1], length.out=loop.time)
+     }
+        maxz12=array(c(0,0),rep(loop.time,2))       
      
      for (i in 1:loop.time)
      {
-            # grid for 2nd dimension
+         # grid for 2nd dimension
             
            if ((N.upper[2]-N.lower[2]+1)<num.grid[2])
            {
@@ -100,9 +115,8 @@ if (length(N.upper)==4)
            }
            
            for (j in 1:loop.time)
-           {
-           
-            # grid for 3rd dimension 
+           {           
+              # grid for 3rd dimension 
             
                   if ((N.upper[3]-N.lower[3]+1)<num.grid[3])
                    {
@@ -115,7 +129,7 @@ if (length(N.upper)==4)
            
                 for (k in 1:loop.time)
                 {
-                      # grid for 4th dimension
+                    # grid for 4th dimension
                     
                       if ((N.upper[4]-N.lower[4]+1)<num.grid[4])
                       {
@@ -147,7 +161,7 @@ if (length(N.upper)==4)
                              {
                                alpha = xN.matrix[,1]/ xN.matrix[,2]
      
-                               Quantile= multistagetp(alpha, corx=corr[-1,-1], alg=alg)     
+                               Quantile= multistagetp(alpha, corr=corr, alg=alg)     
                            
                                output<- multistagegain(Q=Quantile,corr=corr,alg=alg)*Vgca[1]^0.5
                               }else
@@ -171,10 +185,7 @@ if (length(N.upper)==4)
                                  detail.table=rbind(detail.table,c(xN[1],xNone[i],xNtwo[j],xNthree[k],xNfour[l],output))
                                }
                              }
-                          
-                      
-                          
-                          
+                                            
                     }
      
                 }
@@ -192,21 +203,21 @@ if (length(N.upper)==4)
            
              xNzero=floor((Budget-sum((CostInitial[2:5]+CostTv[2:5])*c(xNone[location[1]],xNtwo[location[2]],xNthree[location[3]],xNfour[location[4]])))/(CostInitial[1]+CostTv[1]))
            
-           sample.size=c(xNzero, xNone[location[1]],xNtwo[location[2]],xNthree[location[3]],xNfour[location[4]],result)
+           max.allocation=c(xNzero, xNone[location[1]],xNtwo[location[2]],xNthree[location[3]],xNfour[location[4]],result)
 
-    if (detail==TRUE)
-    {
+      if (detail==TRUE)
+      {
       
-			save(detail.table,file="detail output")
+       # save(detail.table,file="detail output")
 			
-      sample.size = rbind(detail.table,sample.size)
+        sample.size = rbind(detail.table,max.allocation)
       
-    }
+      }
    
-   }
+    }
 
 
-}else if (length(N.upper)==3)
+  }else if (length(N.upper)==3)
 {
 
  
@@ -266,7 +277,7 @@ if (length(N.upper)==4)
                              {
                                alpha = xN.matrix[,1]/ xN.matrix[,2]
      
-                               Quantile= multistagetp(alpha, corx=corr[-1,-1], alg=alg)     
+                               Quantile= multistagetp(alpha, corr=corr, alg=alg)     
                            
                                output <- multistagegain(Q=Quantile,corr=corr,alg=alg)*Vgca[1]^0.5
                               }else
@@ -309,12 +320,12 @@ location = which(z==result,arr.ind =TRUE )
 
 xNzero=floor((Budget-sum((CostInitial[2:4]+CostTv[2:4])*c(xNone[location[1]],xNtwo[location[2]],xNthree[location[3]])))/(CostInitial[1]+CostTv[1]))
 
-sample.size=c(xNzero, xNone[location[1]],xNtwo[location[2]],xNthree[location[3]],result)
+max.allocation=c(xNzero, xNone[location[1]],xNtwo[location[2]],xNthree[location[3]],result)
 
 if (detail==TRUE)
     {
        
-      sample.size = rbind(detail.table,sample.size)
+      sample.size = rbind(detail.table,max.allocation)
       
     }
    
@@ -366,7 +377,7 @@ if (detail==TRUE)
                              {
                                alpha = xN.matrix[,1]/ xN.matrix[,2]
      
-                               Quantile= multistagetp(alpha, corx=corr[-1,-1], alg=alg)     
+                               Quantile= multistagetp(alpha, corr=corr, alg=alg)     
                            
                                output<- multistagegain(Q=Quantile,corr=corr,alg=alg)*Vgca[1]^0.5
                               }else
@@ -410,13 +421,13 @@ location = which(z==result,arr.ind =TRUE )
 
 xNzero=floor((Budget-sum((CostInitial[2:3]+CostTv[2:3])*c(xNone[location[1]],xNtwo[location[2]])))/(CostInitial[1]+CostTv[1]))
 
-sample.size=c(xNzero, xNone[location[1]],xNtwo[location[2]],result)
+max.allocation=c(xNzero, xNone[location[1]],xNtwo[location[2]],result)
 
 
 if (detail==TRUE)
     {
        
-      sample.size = rbind(detail.table,sample.size)
+      sample.size = rbind(detail.table,max.allocation)
       
     }
    
@@ -460,7 +471,7 @@ if (detail==TRUE)
                              {
                                alpha = xN.matrix[,1]/ xN.matrix[,2]
      
-                               Quantile= multistagetp(alpha, corx=corr[-1,-1], alg=alg)     
+                               Quantile= multistagetp(alpha, corr=corr, alg=alg)     
                            
                                output<- multistagegain(Q=Quantile,corr=corr,alg=alg)*Vgca[1]^0.5
                               }else
@@ -499,16 +510,14 @@ location = which(z==result,arr.ind =TRUE )
 
 xNzero=floor((Budget-sum((CostInitial[2]+CostTv[2])*c(xNone[location[1]],xNtwo[location[2]])))/(CostInitial[1]+CostTv[1]))
 
-sample.size=c(xNzero, xNone[location[1]],result)
-
+max.allocation=c(xNzero, xNone[location[1]],result)
+#sample.size=max.allocation
 
 if (detail==TRUE)
     {
-       
-      sample.size = rbind(detail.table,sample.size)
-      
+      sample.size = rbind(detail.table, max.allocation)      
     }
-   
+
 } 
 
 if (fig==TRUE)
@@ -539,8 +548,22 @@ if (fig==TRUE)
 
 
 
-# format the table with row and col 
-
-sample.size
+# format the table with col name 
+    colword<-c("N1")
+    
+    for (i in 1:length(N.lower))
+    {
+         colword<-c(colword,paste("N",i+1,sep=""))
+    }
+    if (detail==FALSE)
+    {
+       names(max.allocation)<-c(colword,"gain")
+       max.allocation
+    }else
+    {
+       colnames(sample.size)<-c(colword,"gain")
+       sample.size
+    }
+    
    
 }

@@ -11,24 +11,42 @@ multistageoptimum.search<-function (maseff=0.4, VGCAandE,
   T2grid=c(1,2,1), T3grid=c(3,5,1),R2=1,R3=1,  alg = Miwa(),detail=FALSE,fig=FALSE)
 
 {  
-	if (Budget< c(N2grid[1]*L2grid[1]*T2grid[1]+N3grid[1]*L3grid[1]*T3grid[1]))
-	{
-	  stop("budget too small, try value => c(N2grid[1]*L2grid[1]*T2grid[1]+N3grid[1]*L3grid[1]*T3grid[1])")
-	}
+
+# pre-define parameters
+  Vgca=VGCAandE
+  Vsca=VSCA
 	
-	Vgca=VGCAandE
-	Vsca=VSCA
+  L2limit=L2grid
+  L3limit=L3grid
+  T2limit=T2grid
+  T3limit=T3grid
 	
-	L2limit=L2grid
-	L3limit=L3grid
-	T2limit=T2grid
-	T3limit=T3grid
-	
-	dim=(T3limit[2]-T3limit[1]+1)/T3limit[3]*(T2limit[2]-T2limit[1]+1)/T2limit[3]*(L3limit[2]-L3limit[1]+1)/L3limit[3]*(L2limit[2]-L2limit[1]+1)/L2limit[3]
+  dim=(T3limit[2]-T3limit[1]+1)/T3limit[3]*(T2limit[2]-T2limit[1]+1)/T2limit[3]*(L3limit[2]-L3limit[1]+1)/L3limit[3]*(L2limit[2]-L2limit[1]+1)/L2limit[3]
 
   gainmatrix=array(0,c(1,15))
   colnames(gainmatrix)<-c("Nf","N1","N2","N3","L2","L3","T2","T3","R2","R3","B1","B2","B3","Budget","Gain")
- 
+
+
+# main function
+  if (Budget< c(N2grid[1]*L2grid[1]*T2grid[1]+N3grid[1]*L3grid[1]*T3grid[1]))
+  {
+  stop("budget too small, try value => c(N2grid[1]*L2grid[1]*T2grid[1]+N3grid[1]*L3grid[1]*T3grid[1])")
+  }
+  if (Budget> c(N2grid[2]*L2grid[2]*T2grid[2]+N3grid[2]*L3grid[2]*T3grid[2]))
+  {
+  stop("budget too great, try value =>  c(N2grid[2]*L2grid[2]*T2grid[2]+N3grid[2]*L3grid[2]*T3grid[2])")
+  }
+
+ if (length(CostTest)!= 3)
+  {
+    stop( "dimension of CostTest has to be 3")
+  }  
+  if (length(CostProd)!= 3)
+  {
+    stop( "dimension of CostProd has to be 3")
+  }  
+
+
 for (T3 in seq.int(T3limit[1],T3limit[2],T3limit[3]))
 {
   for (T2 in seq.int(T2limit[1],T2limit[2],T2limit[3]))
