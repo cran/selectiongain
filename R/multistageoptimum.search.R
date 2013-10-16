@@ -5,10 +5,10 @@
 
 
 multistageoptimum.search<-function (maseff=0.4, VGCAandE, 
-  VSCA, CostProd = c(0.5,1,1), CostTest = c(0.5,1,1), 
+  VSCA=c(0,0,0,0), CostProd = c(0.5,1,1), CostTest = c(0.5,1,1), 
   Nf = 10, Budget = 10021, N2grid = c(11, 1211, 30), 
   N3grid = c(11, 211, 5), L2grid=c(1,3,1), L3grid=c(6,8,1),
-  T2grid=c(1,2,1), T3grid=c(3,5,1),R2=1,R3=1,  alg = Miwa(),detail=FALSE,fig=FALSE)
+  T2grid=c(1,1,1), T3grid=c(1,1,1),R2=1,R3=1,  alg = Miwa(),detail=FALSE,fig=FALSE)
 
 {  
 
@@ -84,22 +84,49 @@ L1=1
 T1=1
 R1=1
 
-corr.longin.mas.index = multistagecor(VGCAandE=Vgca,VSCA=Vsca,L=c(L1,L2,L3),Rep=c(R1,R2,R3),T=c(T1,T2,T3),index=FALSE,maseff=0.4)
+if (!is.na(maseff))
+{
+corr.longin.mas.index = multistagecor(VGCAandE=Vgca,VSCA=Vsca,L=c(L1,L2,L3),Rep=c(R1,R2,R3),T=c(T1,T2,T3),index=FALSE,maseff=maseff)
 
 corr.matrix=corr.longin.mas.index
 
 CostTestloop=c(CostTest[1],CostTest[2]*L2*T2*R2,CostTest[3]*L3*T3*R3)
 
 
-result=multistageoptimum.grid( N.upper = c(100000,N2grid[2],N3grid[2]), N.lower =  c(1,N2grid[1],N3grid[1]), Vg=Vgca[1],corr = corr.matrix, width =  c(1,N2grid[3],N3grid[3]), Budget = Budget, CostProd =CostProd, CostTest = CostTestloop, Nf = 10, detail = FALSE, alg = Miwa(),fig=FALSE)
+result=multistageoptimum.grid( N.upper = c(100000,N2grid[2],N3grid[2]), N.lower =  c(1,N2grid[1],N3grid[1]), Vg=Vgca[1],corr = corr.matrix, width =  c(1,N2grid[3],N3grid[3]), Budget = Budget, CostProd =CostProd, CostTest = CostTestloop, Nf = Nf, detail = FALSE, alg = Miwa(),fig=FALSE)
 gainmatrix[i,"Budget"]=Budget
 gainmatrix[i,"N1"]= result[1]
+gainmatrix[i,"B1"]= result[1]*(CostTest[1]+CostProd[1])
 gainmatrix[i,"N2"]= result[2]
 gainmatrix[i,"N3"]= result[3]
-gainmatrix[i,"B1"]= result[1]*(CostTest[1]+CostProd[1])
+
 gainmatrix[i,"B2"]= result[2]*( L2*T2*R2*CostTest[2]+CostProd[2])
 gainmatrix[i,"B3"]= result[3]*( L3*T3*R3*CostTest[3]+CostProd[3])
 gainmatrix[i,"Gain"]= result[4]
+}else
+{
+corr.longin.mas.index = multistagecor(VGCAandE=Vgca,VSCA=Vsca,L=c(L2,L3),Rep=c(R2,R3),T=c(T2,T3),index=FALSE,maseff=maseff)
+
+corr.matrix=corr.longin.mas.index
+
+CostTestloop=c(CostTest[2]*L2*T2*R2,CostTest[3]*L3*T3*R3)
+
+
+result=multistageoptimum.grid( N.upper = c(N2grid[2],N3grid[2]), N.lower =  c(N2grid[1],N3grid[1]), Vg=Vgca[1],corr = corr.matrix, width =  c(N2grid[3],N3grid[3]), Budget = Budget, CostProd =CostProd[2:3], CostTest = CostTestloop, Nf = Nf, detail = FALSE, alg = Miwa(),fig=FALSE)
+gainmatrix[i,"Budget"]=Budget
+#gainmatrix[i,"N1"]= result[1]
+#gainmatrix[i,"B1"]= result[1]*(CostTest[1]+CostProd[1])
+gainmatrix[i,"N2"]= result[1]
+gainmatrix[i,"N3"]= result[2]
+
+gainmatrix[i,"B2"]= result[1]*( L2*T2*R2*CostTest[2]+CostProd[2])
+gainmatrix[i,"B3"]= result[2]*( L3*T3*R3*CostTest[3]+CostProd[3])
+gainmatrix[i,"Gain"]= result[3]
+
+}
+
+
+
 }
 
 
@@ -144,7 +171,7 @@ result=multistageoptimum.grid( N.upper = c(100000,N2grid[2],N3grid[2]), N.lower 
      output
   }else  if (detail!=TRUE )
   {
-     output[gainlocation,]
+     output[gainlocation[1],]
 	}
 
 }

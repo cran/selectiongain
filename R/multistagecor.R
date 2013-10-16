@@ -5,14 +5,14 @@
 # the package are totally rewritten
 
 
-`multistagecor` <-function(maseff=NA,VGCAandE=c(0,0,0,0,0),VSCA=c(0,0,0,0),T, L,Rep,index=FALSE,covscatype=c("LonginII"),detail=FALSE)
+`multistagecor` <-function(maseff=NA,VGCAandE=c(0,0,0,0,0),VSCA=c(0,0,0,0),T, L,Rep,index=FALSE,covtype=c("LonginII"),detail=FALSE)
 {
 
 # we had two optition of VGCA,  either VGCA or VGCAandE  
 
 # funtion for calculating cov without markers
 
-covwithoutmas  <-function(V=c(0,0,0,0,0),VSCA=c(0,0,0,0),T, L,Rep,index=FALSE,covscatype=c("LonginII"))
+covwithoutmas  <-function(V=c(0,0,0,0,0),VSCA=c(0,0,0,0),T, L,Rep,index=FALSE,covtype=c("LonginII"))
 {
     
   VarianceType=V[1]
@@ -109,7 +109,7 @@ covwithoutmas  <-function(V=c(0,0,0,0,0),VSCA=c(0,0,0,0),T, L,Rep,index=FALSE,co
  
 # calculate the covariance  
 
-if (covscatype=="LonginII")
+if (covtype=="LonginII")
  { 
   cov= diag(dim)*Vg
   cov[1,]=Vg
@@ -130,7 +130,7 @@ if (covscatype=="LonginII")
       }
      }
   }
- }else if (covscatype=="Heffner")
+ }else if (covtype=="Heffner")
  {
   cov= diag(dim)*Vg
   cov[1,]=Vg
@@ -192,7 +192,7 @@ cov
 	 {
               tempb="empty"
 	      cov=covwithoutmas(V=VGCAandE,VSCA=VSCA,T=T,L=L,Rep=Rep,index=index,
-              covscatype=covscatype)
+              covtype=covtype)
               if (index==TRUE)
              {                
                 P=cov[-1,-1]
@@ -232,7 +232,7 @@ cov
              }else if (index!=TRUE)
              {
                 cov= covwithoutmas(V=VGCAandE,VSCA=VSCA,T=T[-1], L=L[-1],Rep=Rep[-1],
-								covscatype=covscatype)
+								covtype=covtype)
                	dim=dim-1
                 corp=cov
 							
