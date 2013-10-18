@@ -15,10 +15,10 @@ CostTest,Nf,alg,detail,fig,N.upper, N.lower)
 
  \item{Vg}{is genotypic variance \eqn{\delta_y^2}. The default value is 1.}
  
-\item{corr}{is the correlation matrix of y and X, which is introduced in function multistagecorr. The correlation matrix must be symmetric and positive-definite. Before starting the calculations, the user is recommended to check the correlation matrix.}
+\item{corr}{is the correlation matrix of y and X, which is introduced in the function multistagecorr. The correlation matrix must be symmetric and positive-definite. If the estimated correlation matrix is negative-definite, it must be adjusted before using this function. Before starting the calculations, it is recommended to check the correlation matrix.}
 
 
-\item{num.grid}{ is the number of equally distanced points which divided the axis of \eqn{x_1} into \eqn{num.grid_i-1} intervals and there are \eqn{\prod_i(num.grid_i)} grids in a n dimensional hyper cube.  If the grid point is more than the maximum number of certain stage i, then the grid number of this stage will equal to the number of grid points, i.e., if \eqn{num.grid > N_i}, then the number of grid points for the i-th axis is \eqn{N_i}. The default value of it is \code{NA}.}
+\item{num.grid}{ is the number of equally distanced points that divided the axis of \eqn{x_1} into \eqn{num.grid_i-1} intervals and there are \eqn{\prod_i(num.grid_i)} grids in a n dimensional hyper cube.   If \eqn{num.grid > N_i}, then the number of grid points for the i-th axis is \eqn{N_i}. The default value of it is \code{NA}.}
 
 \item{width}{ is the width between the equally distanced points. The default value is \code{NA}.}
 
@@ -38,7 +38,7 @@ CostTest,Nf,alg,detail,fig,N.upper, N.lower)
  
 
 
-\item{fig}{is the control parameter to decide if a figure of contour plot will be saved in the default folder. The default value is \code{FALSE}, which means no figure will be saved.}
+\item{fig}{is the control parameter to decide if a figure of contour plot will be saved in the default folder of R. The default value is \code{FALSE}, which means no figure will be saved.}
 
 \item{N.upper}{is the vector of upper limits of number of candidates X.}
 
@@ -62,9 +62,9 @@ A. Genz, F. Bretz, T. Miwa, X. Mi, F. Leisch, F. Scheipl and T. Hothorn. mvtnorm
 
 G.M. Tallis. Moment generating function of truncated multi-normal distribution. J. Royal Stat. Soc., Ser. B, 23(1):223-229, 1961.
 
-W.G. Cochran. Improvement by means of selection. In J. Neyman (ed.) Proc. 2nd Berkeley Symp. on Mathematical Statistics and Probability. University of California Press, Berkeley., 1951.
+W.G. Cochran. Improvement by means of selection. In J. Neyman (ed.) Proc. 2nd Berkeley Symp. on Mathematical Statistics and Probability. University of California Press, Berkeley, 1951.
 
-X. Mi, T. Miwa and T. Hothorn. Implement of Miwa's analytical algorithm of multi-normal distribution, R Journal, 1:37-39, 2009.
+X. Mi, T. Miwa and T. Hothorn. Implement of Miwa's analytical algorithm of multi-normal distribution. R Journal, 1:37-39, 2009.
 
 
 

@@ -485,7 +485,7 @@ if (detail==TRUE)
                            }
                             
                              
-                          #   z[i,j]=output  
+                              z[i]=output  
                              if (detail==TRUE )
                              { 
                                if (i==1)
@@ -508,7 +508,7 @@ location = which(z==result,arr.ind =TRUE )
 
 #sample.size=c(xNone[location[1]],xNtwo[location[2]],result)
 
-xNzero=floor((Budget-sum((CostInitial[2]+CostTv[2])*c(xNone[location[1]],xNtwo[location[2]])))/(CostInitial[1]+CostTv[1]))
+xNzero=floor((Budget-sum((CostInitial[2]+CostTv[2])*c(xNone[location[1]])))/(CostInitial[1]+CostTv[1]))
 
 max.allocation=c(xNzero, xNone[location[1]],result)
 #sample.size=max.allocation
