@@ -99,7 +99,7 @@
         loop.time=num.grid[1]
         xNone <- seq.int(N.lower[1], N.upper[1], length.out=loop.time)
      }
-        maxz12=array(c(0,0),rep(loop.time,2))       
+        maxz12=array(0,num.grid[1:2])       
      
      for (i in 1:loop.time)
      {
@@ -233,7 +233,7 @@
             xNone <- seq.int(N.lower[1], N.upper[1], length.out=loop.time)
            }
           
-    maxz12=array(c(0,0),rep(loop.time,2))    
+         maxz12=array(0,num.grid[1:2])     
   
      for (i in 1:loop.time)
      {
@@ -344,7 +344,7 @@ if (detail==TRUE)
             loop.time=num.grid[1]
             xNone <- seq.int(N.lower[1], N.upper[1], length.out=loop.time)
            }
-   maxz12=array(c(0,0),rep(loop.time,2))            
+        maxz12=array(0,num.grid[1:2])              
      
      for (i in 1:loop.time)
      {
