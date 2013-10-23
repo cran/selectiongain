@@ -1,9 +1,9 @@
-f9fb413a0dc151e1b6e4eb58b4240472 *DESCRIPTION
+8f3fc6d09f4fa255e70c85bf65a224ba *DESCRIPTION
 9095785d6743b799e915672cdabd5ef2 *NAMESPACE
 1473c2a265a8837c63ef1abab83e0286 *R/multistagecor.R
 68cd872f80a1f803b845d1cfe84fbb69 *R/multistagegain.R
 366fc8bc1ed93468ead1cbc341a8b25a *R/multistagegain.each.R
-6886bf1c81102c59ce69cde9ceb01e6a *R/multistageoptimum.grid.R
+2deab5cd32e0ab29402e069cee0c2280 *R/multistageoptimum.grid.R
 01e19193d243561e8113a1cbd9aaec0b *R/multistageoptimum.nlm.R
 9922a53f892e1383e36c052fc3d5440e *R/multistageoptimum.search.R
 4bbfdd6ccf1f9166c2c534a13ff9d230 *R/multistagetp.R
