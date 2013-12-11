@@ -60,7 +60,7 @@
   {
        if ( length(width) == length(N.upper))
        {
-         num.grid=ceiling((N.upper-N.lower)/width)[-1]
+         num.grid=ceiling((N.upper-N.lower)/width)[-1]+1
        }else if(length(width) != length(N.upper))
        {
            stop( "if width is not NA, then length of width must be identical to N.upper") 
