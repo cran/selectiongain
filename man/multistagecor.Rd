@@ -10,22 +10,30 @@ In a plant breeding context, it is assumed that the genetic structure of the can
   
 }
 \usage{
-multistagecor(maseff,VGCAandE,VSCA,T,L,Rep,index,covtype,detail)
+multistagecor(maseff,VGCAandE,VSCA,VLine,ecoweight,rhop,T,L,M,Rep,index,covtype,detail)
 
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
 
-  \item{maseff}{ is the efficiency of marker-assisted selection (MAS). The default value is NA, which means there is no MAS. If a value between 0 and 1 is assigned to \code{maseff}, then the first selection stage will be considered as MAS (Heffner et al., 2010).}
+  \item{maseff}{ is the efficiency of marker-assisted selection (MAS). The default value is NA, which means there is no MAS. If a value between 0 and 1 is assigned to \code{maseff}, then the first selection stage will be considered as MAS (Heffner et al., 2010). The value of MAS is recommanded to be higher than 0.1 to avoid illshaped correlation matrix.}
    
   \item{VGCAandE}{is the vector of variance components of genetic effect, genotype \eqn{\times} location interaction, genotype \eqn{\times} year interaction, genotype \eqn{\times} location \eqn{\times} year interaction and the plot error. When \code{VSCA} is specified, the VGCAandE refers to the general combining ability, otherwise it stands for genetic effect.  The default value is {1,1,1,1,1}. Variances types listed in Longin et al. (2007) can be used. For example, \code{VGCAandE="VC2"} will set the value as {1,0.5,0.5,1,2}. }  
  
   \item{VSCA}{is the vector of variance components for specific combining ability. The default value is {0,0,0,0}. }  
  
- \item{T}{is the vector of number of testers at each stage. If there is no tester applied in a certain stage, the value at this stage has to be 1. }  
+  \item{VLine}{is the vector of variance components for line per se. The default value is {0,0,0,0,0}.}
+ 
+  \item{ecoweight}{is the vector of economic weight}
+   
+  \item{rhop}{is the genetic correlation between line per se performance and GCA}
+  
+  \item{T}{is the vector of number of testers at each stage. If there is no tester applied in a certain stage, the value at this stage has to be 1. }  
 
   \item{L}{is the vector of number of locations at each stage.}
-  
+   
+  \item{M}{is the vector of tester type, i.e., number of unrelated inbred lines combined in a single tester in stage j.}
+    
   \item{Rep}{is the vector of number of replications at each stage.}  
  
   \item{index}{is the control parameter. If it equals TRUE, the optimum selection index of Longin et al. (2007) will be used in the calculation of correlation matrix without MAS. 

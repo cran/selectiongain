@@ -157,7 +157,7 @@ L1=1
 T1=1
 R1=1
 
-corr.longin.mas.index = multistagecor(VGCAandE=Vgca,VSCA=Vsca,L=c(L1,L2,L3),Rep=c(R1,R2,R3),T=c(T1,T2,T3),index=FALSE,maseff=0.4)
+corr.longin.mas.index = multistagecor(VGCAandE=Vgca,VSCA=Vsca,L=c(L1,L2,L3),Rep=c(R1,R2,R3),T=c(T1,T2,T3),index=FALSE,maseff=maseff)
 
 corr.matrix=corr.longin.mas.index
 
