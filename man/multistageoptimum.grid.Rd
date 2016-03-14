@@ -8,7 +8,7 @@
 \usage{
 multistageoptimum.grid(corr, Vg,
 num.grid, width, Budget, CostProd,
-CostTest,Nf,alg,detail,fig,N.upper, N.lower)
+CostTest,Nf,alg,detail,fig,N.upper, N.lower,alpha.nursery,cost.nursery)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -44,13 +44,23 @@ CostTest,Nf,alg,detail,fig,N.upper, N.lower)
 
 \item{N.lower}{is the vector of lower limits of number of candidates X.}
 
+\item{alpha.nursery}{a value that should be 0<x<1, prelimitery test alpha fraction should be used for the stage 1.  it is setted to 1 as default, when no prelimitery test "nursery stage". }
+
+\item{cost.nursery}{a vector of length two c([cost of producing a DH line],[cost of testing a DH in nursery]). The default value is {0,0}. }
+
 
 }
-%\details{ 
+\details{ 
 
-%More details are in the JSS paper section 3.5.
+
+for the new added to parameters "alpha.nursery" and "cost.nursery" since v2.0.47: 
  
-%}
+ After producing new DH lines, breeders do NOT go directly for a selection stage in the field, neither for genomic selection. Most of the times, they prefer to make a small field experiment (called "nursery") in which all DH lines are observed and discarded for other traits as disease resistance. That means, all DH lines with poor resistance will be discarded. At the end of the nursery stage only certain amount of DH lines (alpha) advance to the first selection stage (phenotypic or genomic). Specially in maize that makes sense, because in experience around 90 percent of the new DH lines are very weak in terms of per se performance what make them not suitable as new hybrid parents. Then, budget should not be used to make genotyping on or testcrossing with them. Only the alpha fraction should be used for entering the stage 1 of the multistageoptimum.search function.
+
+More details are available in the Crop Science and Computational Statistics papers.
+ 
+ 
+}
 \value{
 If \eqn{\texttt{detail}} = FALSE, the output of this functions is a vector with the optimal number of candidates in each stage (\eqn{\textbf{N}}) and the maximum \eqn{\Delta G}. Otherwise, the result for all the grid points, which have been calculated, will be exported as a table.}
 \references{
@@ -69,7 +79,7 @@ X. Mi, T. Miwa and T. Hothorn. Implement of Miwa's analytical algorithm of multi
 
 
  }
-\author{ Xuefei Mi}
+\author{ Xuefei Mi, Jose Marulanda}
 \note{ no further comment
 
 }

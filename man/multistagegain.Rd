@@ -14,7 +14,7 @@ This is the main function of the package and uses the following equation given b
 
 }
 \usage{
-multistagegain(corr, Q, alg)
+multistagegain(corr, Q, alg,parallel)
 
 
 
@@ -29,7 +29,7 @@ multistagegain(corr, Q, alg)
 %\item{Vg}{is true breeding value. The default value is 1.}
 
 \item{alg}{is used to switch between two algorithms. If \code{alg = GenzBretz()}, which is by default, the quasi-Monte Carlo algorithm from Genz et al. (2009, 2013), will be used. If \code{alg = Miwa()}, the program will use the Miwa algorithm (Mi et al., 2009), which is an analytical solution of the MVN integral. Miwa's algorithm has higher accuracy (7 digits) than quasi-Monte Carlo algorithm (5 digits). However, its computational speed is slower. We recommend to use the Miwa algorithm.}
- 
+\item{parallel}{is a logical variable to desided if the multiple cores can be used for computing, by default is FALSE. The users have to notice that assign cores also cost time. So this procedure can only be efficient if the dim >5. } 
   
 %\item{partial}{If \code{partial = TRUE}, the partial gain (\eqn{\rho_{0,k} \,  \phi_1(q_k) \,  \Phi_{n} (A_{k,s};R_k)}) from deleting stage k will be shown. The default value is \code{FALSE}.}
 

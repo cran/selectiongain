@@ -1,8 +1,20 @@
 # mutistagecor.R author: xuefei mi, 11-03-2013, for selectiongain package v2.0.2
 
+# modified at 2015-11-09, funtion is modifyed to use multiple cpu cores
+
+
 `multistagegain` <-
-function(corr, Q, alg= GenzBretz())
+function(corr, Q, alg= GenzBretz(),parallel=FALSE)
 {
+  
+  if (parallel)
+  {    
+  #library(parallel)
+  
+  no_cores <- detectCores() - 1
+  cl <- makeCluster(no_cores);
+#  clusterEvalQ(cl,library(mvtnorm))
+  }
   
 # internal default parameters
   Vg=1
@@ -89,31 +101,70 @@ function(corr, Q, alg= GenzBretz())
         output
        }
 
+      loopi<-function(i,k,A,part.corr,dim,alg,alpha3)
+      {
+      outputarrayi<-corr[1,i]*dnorm(k[i])*j3q(i,A,part.corr,dim,alg)/alpha3
+      outputarrayi
+      }
+      
+    
+      
+      
       calculatx1<-function(A,part.corr,dim,corr,k,alpha3,stages=FALSE)
       {  
         if (stages)
         {
-          output=rep(0,dim)
+           outputarray=rep(0,dim)
           i=1
+          
+          if (parallel)
+          {
+            outputarray <- parSapply(cl=cl, 1:dim, FUN=loopi,k=k,A=A,part.corr=part.corr,dim=dim,alg=alg,alpha3=alpha3)
+            outputarray[2:dim]
+          }else
+          { 
           for (i in 1 : dim)
           {
-            output[i]=corr[1,i]*dnorm(k[i])*j3q(i,A,part.corr,dim,alg)/alpha3
-          }
-          output[2:dim]
+            outputarray[i]=corr[1,i]*dnorm(k[i])*j3q(i,A,part.corr,dim,alg)/alpha3
+           }
+          outputarray[2:dim]
+            }  
+      
         }else
         {   
-          output=0
-          i=1
-          for (i in 1 : dim)
+         outputarray=rep(0,dim)
+          if (parallel)
+          { 
+            
+            #outputarray <- parLapply(cl=cl, 1:dim, fun=loopi,k,A,part.corr,dim,alg,alpha3)
+            
+            outputarray <- parSapply(cl=cl, 1:dim, FUN=loopi,k=k,A=A,part.corr=part.corr,dim=dim,alg=alg,alpha3=alpha3)
+            
+            output<-sum(outputarray) 
+            output
+          }else
           {
-            output= output+ corr[1,i]*dnorm(k[i])*j3q(i,A,part.corr,dim,alg)/alpha3
+          
+            output=0
+            i=1
+          
+         
+          
+           for (i in 1 : dim)
+           {
+             outputarray[i]=corr[1,i]*dnorm(k[i])*j3q(i,A,part.corr,dim,alg)/alpha3
+           }
+            sum(outputarray)
           }
-          output 
+         
         }
       }
       gainresult<-calculatx1(A=A,part.corr=part.corr,dim=dim,corr=corr,k=k,alpha3=alphaofx,stages=stages)
     }
-
+  if (parallel)
+  { 
+  stopCluster(cl);
+  }
   if (stages==TRUE)
   {
     gainresult*Vg^0.5

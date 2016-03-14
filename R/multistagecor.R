@@ -12,9 +12,17 @@
 
 # parental effect was considered
 
-#  mutistagecor.R author: xuefei mi, 5th version 25-12-2014, for selectiongain package since v2.0.35 and 40
+# v45, for longin 2015, genomic selection in wheat paper. 2015-03-01
+
+# v46, add 3 method for parenet-bs1-gca etc. 2015-03-06
+
+#  mutistagecor.R author: xuefei mi, 2015-10-08, for selectiongain package since v2.0.35, 40, 47
 
 # defualt values of Vline in covwithoutmas was added
+
+
+# v48, integrated bug fixing of gsonly scheme in TAG 2015 paper. marked by ####PleaseCheck
+
 
 
 `multistagecor` <-function(maseff=NA,VGCAandE=c(0,0,0,0,0),VSCA=c(0,0,0,0),VLine=c(0,0,0,0,0), ecoweight=c(0,rep(1,length(T-1))/length(T-1)), rhop=0,  T, L,M=rep(1,length(T)),Rep,index=FALSE,covtype=c("LonginII"),detail=FALSE)
@@ -164,8 +172,10 @@ VarianceType=V[1]
 # function for calculating cov without markers
 
 
-covwithoutmas  <-function(V=c(0,0,0,0,0),VSCA=c(0,0,0,0),VLine=c(0,0,0,0,0), ecoweight,rhop, T, L,M=length(T),Rep,index=FALSE,covtype=c("LonginII"))
-{
+covwithoutmas  <-function(V=c(0,0,0,0,0),VSCA=c(0,0,0,0),VLine=c(0,0,0,0,0), ecoweight,rhop, T, L,M=length(T),Rep,index=FALSE,covtype=c("LonginII")) 
+  ####PleaseCheck : I think in this line "VLineVLine" actually corresponds to "VLine"
+  # modifyed by mi at 2015-11-05, yes this is a typo
+  {
  
 # we had two optition of VGCA,  either VGCA or VGCAandE  
 
@@ -742,14 +752,141 @@ cov
              }
               if (covtype=="LonginII-Parental")
              {
-                 stop("combination of MAS and parental effect is current not available")   
-             }
+                cov= covwithoutmas(V=VGCAandE,VSCA=VSCA,VLine=VLine,ecoweight=ecoweight,rhop=rhop,T=T[-1], L=L[-1],Rep=Rep[-1],M=M[-1],
+								covtype=covtype)
+               	dim=dim-1
+                corp=cov	
+								covlg=rhop*(Vg*VL)^0.5
+	                cormas= diag(dim+1)
+		            cormas[3:c(dim+1),3:c(dim+1)]=corp[2:c(dim),2:c(dim)]
+		            cormas[1,3:c(dim+1)]=corp[1,2:c(dim)]
+		            cormas[3:c(dim+1),1]=corp[2:c(dim),1]
+	            	cormas[1,2]=maseff^2*corp[1,3]
+		            cormas[2,1]=maseff^2*corp[3,1]
+	            	cormas[2,2]=maseff^2*Vg
+	              cormas[1,1]=corp[1,1]
+		          
+                    cormas[2,3]=maseff^2*corp[2,3] 
+	 	           cormas[3,2]=cormas[2,3]  
+
+	          	for (i in 4:c(dim+1))
+	      	   {
+		           cormas[2,i]=maseff^2*Vg
+	 	           cormas[i,2]=cormas[2,i]
+	           } 
+                
+                
+            
              
              tempb="empty"
              if (index==TRUE)
-             {
+               {
                 warning("Heffner's equation is kind of index, no optimal index calculate will be executed",                 call. = FALSE)
-             }else if (index!=TRUE)
+               }
+             }else if(covtype=="LonginII-Parental-gca")
+             {
+               
+                 cov= covwithoutmas(V=VGCAandE,VSCA=VSCA,VLine=VLine,ecoweight=ecoweight,rhop=rhop,T=T[-1], L=L[-1],Rep=Rep[-1],M=M[-1],
+                                    covtype=covtype)
+                 dim=dim-1
+                 corp=cov							
+                 cormas= diag(dim+1)
+                 cormas[3:c(dim+1),3:c(dim+1)]=corp[2:c(dim),2:c(dim)]
+                 cormas[1,3:c(dim+1)]=corp[1,2:c(dim)]
+                 cormas[3:c(dim+1),1]=corp[2:c(dim),1]
+                 cormas[1,2]=maseff^2*Vg
+                 cormas[2,1]=maseff^2*Vg
+                 cormas[2,2]=maseff^2*Vg
+                 cormas[1,1]=corp[1,1]
+                 
+                 cormas[2,3]=maseff^2*corp[1,2] 
+                 cormas[3,2]=cormas[2,3]  
+                 
+                 for (i in 4:c(dim+1))
+                 {
+                   cormas[2,i]=maseff^2*Vg
+                   cormas[i,2]=cormas[2,i]
+                 } 
+                 
+                 
+              
+               tempb="empty"
+               if (index==TRUE)
+               {
+                 warning("Heffner's equation is kind of index, no optimal index calculate will be executed",                 call. = FALSE)
+               }
+               
+             }else if(covtype=="LonginII-Parental-perse")
+             {
+               
+               cov= covwithoutmas(V=VGCAandE,VSCA=VSCA,VLine=VLine,ecoweight=ecoweight,rhop=rhop,T=T[-1], L=L[-1],Rep=Rep[-1],M=M[-1],
+                                  covtype=covtype)
+               dim=dim-1
+               corp=cov  						
+               cormas= diag(dim+1)
+               cormas[3:c(dim+1),3:c(dim+1)]=corp[2:c(dim),2:c(dim)]
+               cormas[1,3:c(dim+1)]=corp[1,2:c(dim)]
+               cormas[3:c(dim+1),1]=corp[2:c(dim),1]
+               cormas[1,2]=maseff^2*corp[1,3] 
+               cormas[2,1]=maseff^2*corp[1,3] 
+               cormas[2,2]=maseff^2*Vg
+               cormas[1,1]=corp[1,1]
+               
+               cormas[2,3]=maseff^2*corp[1,3] 
+               cormas[3,2]=cormas[2,3]  
+               
+               for (i in 4:c(dim+1))
+               {
+                 cormas[2,i]=maseff^2*Vg
+                 cormas[i,2]=cormas[2,i]
+               } 
+               
+               
+            
+
+             tempb="empty"
+              if (index==TRUE)
+              {
+                warning("Heffner's equation is kind of index, no optimal index calculate will be executed",                 call. = FALSE)
+              }
+
+               
+             }else if(covtype=="LonginII-Parental-BS1")
+             {
+               
+               cov= covwithoutmas(V=VGCAandE,VSCA=VSCA,VLine=VLine,ecoweight=ecoweight,rhop=rhop,T=T[-1], L=L[-1],Rep=Rep[-1],M=M[-1],
+                                  covtype=covtype)
+               dim=dim-1
+               corp=cov    					
+               cormas= diag(dim+1)
+               cormas[3:c(dim+1),3:c(dim+1)]=corp[2:c(dim),2:c(dim)]
+               cormas[1,3:c(dim+1)]=corp[1,2:c(dim)]
+               cormas[3:c(dim+1),1]=corp[2:c(dim),1]
+               cormas[1,2]=maseff^2*corp[1,3] 
+               cormas[2,1]=maseff^2*corp[1,3] 
+               cormas[2,2]=maseff^2*Vg
+               cormas[1,1]=corp[1,1]
+               
+               cormas[2,3]=maseff^2
+               cormas[3,2]=cormas[2,3]  
+               
+               for (i in 4:c(dim+1))
+               {
+                 cormas[2,i]=maseff^2*Vg
+                 cormas[i,2]=cormas[2,i]
+               } 
+               
+               
+               
+               
+               tempb="empty"
+               if (index==TRUE)
+               {
+                 warning("Heffner's equation is kind of index, no optimal index calculate will be executed",                 call. = FALSE)
+               }
+               
+               
+             }else if (index!=TRUE & covtype!="LonginII-Parental"& covtype!="LonginII-Parental-gca"& covtype!="LonginII-Parental-perse"& covtype!="LonginII-Parental-BS1")
              {
                 cov= covwithoutmas(V=VGCAandE,VSCA=VSCA,T=T[-1], L=L[-1],Rep=Rep[-1],M=M[-1],
 								covtype=covtype)
@@ -760,10 +897,14 @@ cov
 		            cormas[3:c(dim+1),3:c(dim+1)]=corp[2:c(dim),2:c(dim)]
 		            cormas[1,3:c(dim+1)]=corp[1,2:c(dim)]
 		            cormas[3:c(dim+1),1]=corp[2:c(dim),1]
-	            	cormas[1,2]=maseff^2*Vg
-		            cormas[2,1]=maseff^2*Vg
+	            	cormas[1,2]=maseff^2*corp[2,1]  ####PleaseCheck  : if the Length of L is 2 and we are using mas, corp will be of dimentions 2x2. Then corp[3,1] does not exist. The construction of the 
+					                                                   # cov matrix (cov=corp) indicates that for covtype=LonginII corp[3,1]=corp[2,1]=corp[1,1]=Vg So we can replace corp[3,1] by 
+																	   # corp[2,1] or corp[1,1] or Vg . I replace it by corp[2,1] and the packege worked. Is this change correct?
+	            	                     # modifyed by mi 2015.11.05, yes you can use corp[2,1]   
+	            	
+		            cormas[2,1]=cormas[1,2]
 	            	cormas[2,2]=maseff^2*Vg
-	              cormas[1,1]=Vg
+	              cormas[1,1]=corp[1,1]
 		
 	          	for (i in 3:c(dim+1))
 	      	   {
@@ -775,7 +916,7 @@ cov
 
              }
              
-             
+	           tempb="empty"
              output= list(cov2cor(cormas),tempb,cormas)
          }
 if (detail==TRUE)

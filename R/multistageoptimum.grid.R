@@ -2,10 +2,22 @@
 # package selectiongain
 
 # modified at 28-06-2013, for 1MAS+2PS
+# modified at 13.08.2015 by Jose Marulanda for Preselection on Nurseries for an uncorrelated trait. 
+# All modified lines or added lines end with #JM
 
-`multistageoptimum.grid`<-function(corr, Vg=1, num.grid=NA, width=NA,  Budget, CostProd=rep(0,length(N.upper)), CostTest=rep(1,length(N.upper)),Nf, alg=GenzBretz(),detail=FALSE,fig=FALSE, N.upper, N.lower)
+# v47 checked by X. Mi 06.10.2015
+
+# v48  checked by X. Mi 05.11.2015
+
+
+`multistageoptimum.grid`<-function(corr, Vg=1, num.grid=NA, width=NA,  Budget, CostProd=rep(0,length(N.upper)), CostTest=rep(1,length(N.upper)),Nf, alg=GenzBretz(),
+                          detail=FALSE,fig=FALSE,N.upper, N.lower,
+                          alpha.nursery =1,
+                          cost.nursery=c(0,0)
+                         ) 
 {
-
+  #,  alpha.nursery=1
+  
 # pre-define parameters 
 
    CostInitial=CostProd
@@ -13,8 +25,19 @@
    CostTv=CostTest  
    percent =0.0001
    N.fs=Nf
-
+   alpha.nur=alpha.nursery   # JM
+   Cost.nur=cost.nursery     # JM
+   
 # main function begins
+  
+  if (alpha.nur == 1)                           # JM
+  {                                             # JM
+    CostInitial[1]<-CostInitial[1]+Cost.nur[1]  # JM
+	  Cost.nur=c(0,0)                             # JM
+	warning("No nursery is used as alpha.nursery is set to 1, Cost of production in Nursery added to CostProd")   # JM
+  }                                             # JM
+
+  
   if (length(CostTest)!= dim(corr)[1]-1)
   {
     stop( "dimension of CostTest has to be dim(corr)[1]-1")
@@ -25,7 +48,7 @@
   }  
 
 
-  if (Budget> sum( N.upper*(CostTest+CostProd)))
+  if (Budget> sum( N.upper*(CostTest+CostInitial)))
   {
     stop("N.upper is too small, try to set sum( N.upper*(CostTest+CostProd))>Budget")
   }
@@ -76,7 +99,7 @@
 # for N.upper=5,4,3,2, we prepare for the loops
 # comments only available for the case of N.upper=4
 
-# the first stage constraint is removed, because it will be come a constraint factor by Budget
+# the first stage constraint is removed, because it will become a constraint factor by Budget
 
   Nup=N.upper[1]
   Nlo=N.lower[1]
@@ -90,13 +113,13 @@
    
 # grid for 1st dimension
      z=array(0,num.grid)
-     if ((N.upper[1]-N.lower[1]+1)<num.grid[1])
+     if ((N.upper[1]-N.lower[1]+1)<num.grid[1]) 
      {
-        loop.time=N.upper[1]-N.lower[1]+1
-        xNone <- seq.int(N.lower[1], N.upper[1], length.out=loop.time)
+        loop.time=N.upper[1]-N.lower[1]+1 
+        xNone <- seq.int(N.lower[1], N.upper[1], length.out=loop.time) 
      }else
      {
-        loop.time=num.grid[1]
+        loop.time=num.grid[1] 
         xNone <- seq.int(N.lower[1], N.upper[1], length.out=loop.time)
      }
         maxz12=array(0,num.grid[1:2])       
@@ -149,12 +172,22 @@
                        
                            xN=c(xNone[i],xNone[i],xNtwo[j],xNthree[k],xNfour[l])
       
-                           cost = round( sum(xN*CostInitial)+sum(CostTv*xN) ,3 )
+                           cost = round( sum(xN*CostInitial)+sum(CostTv*xN)+(sum(Cost.nur)*xN[1]/alpha.nur) ,3 )  # JM
   
                          if (cost <= Budget && all(xN[-1]<=N.upper)&& all(xN[-1]>=N.lower) & cost >= percent*Budget )
                           {
-                               xN[1]= floor((Budget-cost)/(CostInitial[1]+CostTv[1])+xNone[i] )
+                               xN[1]= floor((((Budget-cost)/(CostInitial[1]+CostTv[1]+(sum(Cost.nur)/alpha.nur)))+xNone[i] )) # JM
                                
+							   if (alpha.nur==1)                # JM
+							   {                                # JM
+							   xNini=0                          # JM
+							   }                                # JM
+							   else  if(alpha.nur<1)                             # JM
+							   {                                # JM
+							   xNini= xN[1]/alpha.nur           # JM
+							   }                                # JM
+							   
+							   
                                xN.matrix=embed(c(xN,N.fs),2)
 
                                if (all(xN.matrix[,1] <= xN.matrix[,2])& xN[1]<=Nup & xN[1]>=Nlo )
@@ -179,10 +212,10 @@
                              { 
                                if (i==1 && j==1 && k==1 &&l==1)
                                {
-                                 detail.table=c(xN[1],xNone[i],xNtwo[j],xNthree[k],xNfour[l],output)
+                                 detail.table=c(xNini,xN[1],xNone[i],xNtwo[j],xNthree[k],xNfour[l],output)  # JM
                                }else
                                {
-                                 detail.table=rbind(detail.table,c(xN[1],xNone[i],xNtwo[j],xNthree[k],xNfour[l],output))
+                                 detail.table=rbind(detail.table,c(xNini,xN[1],xNone[i],xNtwo[j],xNthree[k],xNfour[l],output)) # JM
                                }
                              }
                                             
@@ -201,9 +234,15 @@
 
     #  sample.size=c(xNone[location[1]],xNtwo[location[2]],xNthree[location[3]],xNfour[location[4]],result)
            
-             xNzero=floor((Budget-sum((CostInitial[2:5]+CostTv[2:5])*c(xNone[location[1]],xNtwo[location[2]],xNthree[location[3]],xNfour[location[4]])))/(CostInitial[1]+CostTv[1]))
-           
-           max.allocation=c(xNzero, xNone[location[1]],xNtwo[location[2]],xNthree[location[3]],xNfour[location[4]],result)
+             xNzero=floor((Budget-sum((CostInitial[2:5]+CostTv[2:5])*c(xNone[location[1]],xNtwo[location[2]],xNthree[location[3]],xNfour[location[4]])))/(CostInitial[1]+CostTv[1]+(sum(Cost.nur)/alpha.nur))) # JM
+			 if (alpha.nur==1){                      # JM
+							   xNini=0               # JM
+							   }                     # JM
+							   else  if(alpha.nur<1)                  # JM
+							   {                     # JM
+			            	   xNini=xNzero/alpha.nur# JM
+                               }
+           max.allocation=c(xNini,xNzero, xNone[location[1]],xNtwo[location[2]],xNthree[location[3]],xNfour[location[4]],result) # JM
 
       if (detail==TRUE)
       {
@@ -265,13 +304,23 @@
       
                           # cost =  sum(xN*CostInitial)+sum(CostTv*xN)+xNone[i]
                            
-                            cost = round( sum(xN*CostInitial)+sum(CostTv*xN) ,3 )
+                            cost = round( sum(xN*CostInitial)+sum(CostTv*xN)+(sum(Cost.nur)*xN[1]/alpha.nur) ,3 )  # JM
+							
   
                          if (cost <= Budget && all(xN[-1]<=N.upper)&& all(xN[-1]>=N.lower) & cost >= percent*Budget)
                           {
-                                xN[1]= floor( (Budget-cost)/(CostInitial[1]+CostTv[1])+xNone[i])
-                               
-                               xN.matrix=embed(c(xN,N.fs),2)
+                                xN[1]= floor((((Budget-cost)/(CostInitial[1]+CostTv[1]+(sum(Cost.nur)/alpha.nur)))+xNone[i] )) # JM
+                                
+								if (alpha.nur==1)           # JM
+							   {							# JM
+							   xNini=0                      # JM
+							   }                            # JM
+							   else  if(alpha.nur<1)                         # JM
+							   {                            # JM
+								xNini=xN[1]/alpha.nur       # JM
+                               }                            # JM
+							   							   
+							   xN.matrix=embed(c(xN,N.fs),2)
 
                                if (all(xN.matrix[,1] <= xN.matrix[,2])& xN[1]<=Nup & xN[1]>=Nlo)
                              {
@@ -297,12 +346,12 @@
                              { 
                                if (i==1 && j==1 && k==1)
                                {
-                                 detail.table=c(xN[1],xNone[i],xNtwo[j],xNthree[k],output)
+                                 detail.table=c(xNini,xN[1],xNone[i],xNtwo[j],xNthree[k],output)  # JM
                                }else
                                {
-                                 detail.table=rbind(detail.table,c(xN[1],xNone[i],xNtwo[j],xNthree[k],output))
+                                 detail.table=rbind(detail.table,c(xNini,xN[1],xNone[i],xNtwo[j],xNthree[k],output)) # JM                               }
                                }
-                             }
+							 }
                           
                           
                     }
@@ -318,9 +367,19 @@ result=max(z)
 
 location = which(z==result,arr.ind =TRUE )
 
-xNzero=floor((Budget-sum((CostInitial[2:4]+CostTv[2:4])*c(xNone[location[1]],xNtwo[location[2]],xNthree[location[3]])))/(CostInitial[1]+CostTv[1]))
+xNzero=floor(((Budget-sum((CostInitial[2:4]+CostTv[2:4])*c(xNone[location[1]],xNtwo[location[2]],xNthree[location[3]]))))/(CostInitial[1]+CostTv[1]+(sum(Cost.nur)/alpha.nur))) # JM
+			 if (alpha.nur==1){             # JM
+							   xNini=0      # JM
+							   }            # JM
+							   else  if(alpha.nur<1)         # JM
+							   {            # JM
+			            	   xNini=xNzero/alpha.nur # JM
+                               }
+           
+           max.allocation=c(xNini,xNzero, xNone[location[1]],xNtwo[location[2]],xNthree[location[3]],result) # JM
 
-max.allocation=c(xNzero, xNone[location[1]],xNtwo[location[2]],xNthree[location[3]],result)
+
+
 
 if (detail==TRUE)
     {
@@ -328,7 +387,7 @@ if (detail==TRUE)
       sample.size = rbind(detail.table,max.allocation)
       
     }
-   
+
 } else if (length(N.upper)==2)
 {
 
@@ -365,11 +424,21 @@ if (detail==TRUE)
       
                          #  cost =  sum(xN*CostInitial)+sum(CostTv*xN)
                            
-                            cost = round( sum(xN*CostInitial)+sum(CostTv*xN) ,3 )
+                            cost = round( sum(xN*CostInitial)+sum(CostTv*xN)+(sum(Cost.nur)*xN[1]/alpha.nur) ,3 ) # JM
   
                          if (cost <= Budget && all(xN[-1]<=N.upper)&& all(xN[-1]>=N.lower) & cost >= percent*Budget)
                           {
-                               xN[1]= floor((Budget-cost)/(CostInitial[1]+CostTv[1])+xNone[i] )
+                              xN[1]= floor((((Budget-cost)/(CostInitial[1]+CostTv[1]+(sum(Cost.nur)/alpha.nur)))+xNone[i] ))  # JM
+							                                  
+							   if (alpha.nur==1)           # JM
+							   {                           # JM
+							   xNini=0                     # JM
+							   }                           # JM
+							   else  if(alpha.nur<1)                        # JM
+							   {                           # JM
+							   xNini=xN[1]/alpha.nur       # JM
+								}                          # JM
+							   
                                
                                xN.matrix=embed(c(xN,N.fs),2)
 
@@ -396,10 +465,10 @@ if (detail==TRUE)
                              { 
                                if (i==1&& j==1)
                                {
-                                 detail.table=c(xN[1],xNone[i],xNtwo[j],output)
+                                 detail.table=c(xNini,xN[1],xNone[i],xNtwo[j],output)  # JM
                                }else
                                {
-                                 detail.table=rbind(detail.table,c(xN[1],xNone[i],xNtwo[j],output))
+                                 detail.table=rbind(detail.table,c(xNini,xN[1],xNone[i],xNtwo[j],output)) # JM
                                }
                              }
                           
@@ -419,9 +488,16 @@ location = which(z==result,arr.ind =TRUE )
 
 #sample.size=c(xNone[location[1]],xNtwo[location[2]],result)
 
-xNzero=floor((Budget-sum((CostInitial[2:3]+CostTv[2:3])*c(xNone[location[1]],xNtwo[location[2]])))/(CostInitial[1]+CostTv[1]))
-
-max.allocation=c(xNzero, xNone[location[1]],xNtwo[location[2]],result)
+  xNzero=floor(((Budget-sum((CostInitial[2:3]+CostTv[2:3])*c(xNone[location[1]],xNtwo[location[2]]))))/(CostInitial[1]+CostTv[1]+(sum(Cost.nur)/alpha.nur))) # JM
+			if (alpha.nur==1){              # JM 
+							   xNini=0      # JM 
+							   }            # JM
+							   else   if(alpha.nur<1)        # JM
+							   {            # JM
+			            	   xNini=xNzero/alpha.nur   # JM
+                               }            # JM
+           
+           max.allocation=c(xNini,xNzero, xNone[location[1]],xNtwo[location[2]],result) # JM
 
 
 if (detail==TRUE)
@@ -431,8 +507,6 @@ if (detail==TRUE)
       
     }
    
-
-
 } else if (length(N.upper)==1)
 {
 
@@ -459,12 +533,20 @@ if (detail==TRUE)
       
                           # cost =  sum(xN*CostInitial)+sum(CostTv*xN)
                            
-                            cost = round( sum(xN*CostInitial)+sum(CostTv*xN) ,3 )
+                            cost = round( sum(xN*CostInitial)+sum(CostTv*xN)+(sum(Cost.nur)*xN[1]/alpha.nur) ,3 ) # JM
   
                          if (cost <= Budget && all(xN[-1]<=N.upper)&& all(xN[-1]>=N.lower) & cost >= percent*Budget)
                           {
-                               xN[1]= floor((Budget-cost)/(CostInitial[1]+CostTv[1])+xNone[i] )
-                               
+                              xN[1]= floor((((Budget-cost)/(CostInitial[1]+CostTv[1]+(sum(Cost.nur)/alpha.nur)))+xNone[i] )) # JM
+                               if (alpha.nur==1) # JM
+							   {                 # JM
+							   xNini=0           # JM
+							   }                 # JM
+							   else  if(alpha.nur<1)              # JM
+							   {                 # JM
+								xNini=xN[1]/alpha.nur # JM
+                               }                 # JM
+							   							   
                                xN.matrix=embed(c(xN,N.fs),2)
 
                                if (all(xN.matrix[,1] <= xN.matrix[,2])& xN[1]<=Nup & xN[1]>=Nlo)
@@ -490,10 +572,10 @@ if (detail==TRUE)
                              { 
                                if (i==1)
                                {
-                                 detail.table=c(xN[1],xNone[i],output)
+                                detail.table=c(xNini,xN[1],xNone[i],output) # JM
                                }else
                                {
-                                 detail.table=rbind(detail.table,c(xN[1],xNone[i],output))
+                                detail.table=rbind(detail.table,c(xNini,xN[1],xNone[i],output)) # JM
                                }
                              }
                           
@@ -508,9 +590,17 @@ location = which(z==result,arr.ind =TRUE )
 
 #sample.size=c(xNone[location[1]],xNtwo[location[2]],result)
 
-xNzero=floor((Budget-sum((CostInitial[2]+CostTv[2])*c(xNone[location[1]])))/(CostInitial[1]+CostTv[1]))
+xNzero=floor(((Budget-sum((CostInitial[2]+CostTv[2])*c(xNone[location[1]]))))/(CostInitial[1]+CostTv[1]+(sum(Cost.nur)/alpha.nur))) # JM
+                    		   if (alpha.nur==1){       # JM
+							   xNini=0                  # JM
+							   }                        # JM
+							   else if(alpha.nur<1)                     # JM
+							   {                        # JM
+			            	   xNini=xNzero/alpha.nur   # JM
+                               }                        # JM
+           
+           max.allocation=c(xNini,xNzero, xNone[location[1]],result) # JM
 
-max.allocation=c(xNzero, xNone[location[1]],result)
 #sample.size=max.allocation
 
 if (detail==TRUE)
@@ -520,6 +610,8 @@ if (detail==TRUE)
 
 } 
 
+
+
 if (fig==TRUE)
 {
     if ((length(N.upper)==1))
@@ -528,7 +620,7 @@ if (fig==TRUE)
     }
     
     
-    require(grDevices)
+  #  require(grDevices)
     #op <- par(mfrow = c(2, 2))
     #points(x=greenzx,y=greenzy, col = "green", pch = 20)
     
@@ -547,9 +639,8 @@ if (fig==TRUE)
  }
 
 
-
 # format the table with col name 
-    colword<-c("N1")
+    colword<-c("Nini","N1")
     
     for (i in 1:length(N.lower))
     {
@@ -557,13 +648,20 @@ if (fig==TRUE)
     }
     if (detail==FALSE)
     {
-       names(max.allocation)<-c(colword,"gain")
+       names(max.allocation)<-c(colword,"Gain") ####PleaseCheck  : Could we change "gain" to "Gain"? Then the output of this function will have the same names of the output of the funciton 
+                                                                   # multistageoptimum.search. I wrote a function that uses the output of those functions to compute the standard deviation of selection gain for the schemes
+                                                                   # Longing proposed in the paper in TAG 2015. He did this computation manually for his paper, but using this function we save time and
+                                                                   # obtain the same results. If you think is good for the package, I would like to send you this function to be included in the package. It will be 
+                                                                   # nice for the users willing to reproduce the results of the papers we are publishing.
+       
+                                                                   #modifyed by X. Mi 05.11.2015, yes
        max.allocation
     }else
     {
-       colnames(sample.size)<-c(colword,"gain")
+       
+      
+      colnames(sample.size)<-c(colword,"Gain") ####PleaseCheck  : Could we change "gain" to "Gain"?
        sample.size
     }
-    
-   
+  
 }
