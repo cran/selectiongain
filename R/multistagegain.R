@@ -4,7 +4,7 @@
 
 
 `multistagegain` <-
-function(corr, Q, alg= GenzBretz(),parallel=FALSE)
+function(corr, Q, alg= GenzBretz(),parallel=FALSE, Vg=1) #new variable
 {
   
   if (parallel)
@@ -17,7 +17,8 @@ function(corr, Q, alg= GenzBretz(),parallel=FALSE)
   }
   
 # internal default parameters
-  Vg=1
+  Vg = Vg #new code
+# Vg=1 # old code
   partial=FALSE
   stages=partial
   lim.y=-200

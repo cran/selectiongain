@@ -1,10 +1,13 @@
+#23.08.2016 JM: Debugged: changes labeled as #JM_1
+
 `multistagevariance` <-
 function(Q,corr,alg=GenzBretz())
 {
 lim.y=-200
 dim=length(Q)+1
 k=c(lim.y,Q) 
-alphaofx=pmvnorm(lower=k,corr=corr)
+alphaofx=pmvnorm(lower=k,corr=corr, algorithm =  alg) #JM_1: new line to allow the computation of alphaofx using the Miwa() algorithm
+#alphaofx=pmvnorm(lower=k,corr=corr) #JM_1: old line
 
 # in the case of one stage selection, dim = 2
 

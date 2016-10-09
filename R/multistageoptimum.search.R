@@ -154,14 +154,16 @@ if(t2free)
   CostProdloop=c(CostProd[1],CostProd[2]*T2,CostProd[3]*(T3-T2))  # JM
 }else
 {
-  CostProdloop=c(CostProd[1],CostProd[2],CostProd[3]) # Mi
+  CostProdloop=c(CostProd[1],CostProd[2]*T2,CostProd[3]*T3) # JM: NewBug testers were not included
+  #CostProdloop=c(CostProd[1],CostProd[2]*T2,CostProd[3]*T3) # Mi #old code
 } 
 
 result=multistageoptimum.grid(N.upper = c(100000,N2grid[2],N3grid[2]), N.lower =  c(1,N2grid[1],N3grid[1]), 
                                Vg=Vgca[1],corr = corr.matrix, width =  c(1,N2grid[3],N3grid[3]), 
 							   Budget = Budget, CostProd =CostProdloop, CostTest = CostTestloop, Nf = Nf, 
 							   detail = FALSE, alg = Miwa(),fig=FALSE # JM
-							   ,alpha.nursery = 1,cost.nursery = c(0,0)
+							   ,alpha.nursery = alpha.nur,cost.nursery = Cost.nur #NewBug in this case we can make MAs and nursery seleciton
+							   #,alpha.nursery = 1,cost.nursery = c(0,0) #old code
 							   )
 gainmatrix[i,"Budget"]=Budget
 gainmatrix[i,"Nini"]= result[1]                               # JM
@@ -193,10 +195,14 @@ CostTestloop=c(CostTest[2]*L2*T2*R2,CostTest[3]*L3*T3*R3)
 
 if(t2free) 
 {
-  CostProdloop=c(CostProd[2]*T2,CostProd[3]*(T3-T2))  # JM
+  CostProdloop=c(CostProd[1]+(CostProd[2]*T2),CostProd[3]*(T3-T2)) #JM  #JM:Please Keep CostProd[1], otherwise will be a major bug in the nursery
+  #CostProdloop=c(CostProd[2]*T2,CostProd[3]*(T3-T2))  # JM #old code
 }else
 {
-  CostProdloop=c(CostProd[2],CostProd[3]) # Mi
+  CostProdloop=c(CostProd[1]+(CostProd[2]*T2),CostProd[3]*T3) #JM: NewBug testers were not included
+  # CostProdloop=c(CostProd[1]+CostProd[2],CostProd[3]) #old line
+  # Mi #JM: Please Keep CostProd[1], otherwise will be a major bug in the nursery
+  #CostProdloop=c(CostProd[2],CostProd[3]) # Mi # old code
 } 
 
 
@@ -235,6 +241,8 @@ gainmatrix[i,]
 
 }
    
+# end of theloop
+
 if (!parallel.search)
 {
   
@@ -292,7 +300,8 @@ if(t2free)
   CostProdloop=c(CostProd[1],CostProd[2]*T2,CostProd[3]*(T3-T2))  # JM
 }else
 {
-  CostProdloop=c(CostProd[1],CostProd[2],CostProd[3]) # Mi
+  CostProdloop=c(CostProd[1],CostProd[2]*T2,CostProd[3]*T3) # Mi #JM: NewBug testers were not included
+  #CostProdloop=c(CostProd[1],CostProd[2],CostProd[3]) # Mi #olde line
 } 
 
 result=multistageoptimum.grid( N.upper = c(100000,N2grid[2],N3grid[2]), N.lower =  c(1,N2grid[1],N3grid[1]),
