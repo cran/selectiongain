@@ -8,7 +8,7 @@
 \usage{
 multistageoptimum.grid(corr, Vg,
 num.grid, width, Budget, CostProd,
-CostTest,Nf,alg,detail,fig,N.upper, N.lower,alpha.nursery,cost.nursery)
+CostTest,Nf,alg,detail,fig,N.upper, N.lower,alpha.nursery,cost.nursery,vargain)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -47,6 +47,8 @@ CostTest,Nf,alg,detail,fig,N.upper, N.lower,alpha.nursery,cost.nursery)
 \item{alpha.nursery}{a value that should be 0<x<1, prelimitery test alpha fraction should be used for the stage 1.  it is setted to 1 as default, when no prelimitery test "nursery stage". }
 
 \item{cost.nursery}{a vector of length two c([cost of producing a DH line],[cost of testing a DH in nursery]). The default value is {0,0}. }
+
+\item{vargain}{is the logical variable to calculate the variance after multi-stage selection. Default is FALSE. Please see more details in the documentation for the function multistagevariance.The default value is \code{FALSE}}
 
 
 }

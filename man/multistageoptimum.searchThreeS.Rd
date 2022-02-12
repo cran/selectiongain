@@ -11,7 +11,7 @@ multistageoptimum.searchThreeS (maseff=0.4, VGCAandE,
   N3grid, N4grid, L2grid, L3grid, L4grid, T2grid,
   T3grid, T4grid, R2, R3, R4, alg,
   detail, fig,alpha.nursery,cost.nursery,
-  t2free,parallel.search)
+  t2free,parallel.search,saveresult)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -71,6 +71,9 @@ multistageoptimum.searchThreeS (maseff=0.4, VGCAandE,
 \item{t2free}{ is a logical value. If =FALSE, the cost of using T4, T3 and T2 testers will be accounted seperately. If =TRUE, the cost of using T4, T3 and T2 testers will be accounted according to number of testers, i.e., CostProd=c(CostProd[1],CostProd[2]*T2,CostProd[3]*(T3-T2),CostProd[4]*(T4-T3) }
 
 \item{parallel.search}{is a logical variable to desided if the multiple cores can be used for computing, by default is FALSE. The users have to notice that assign cores also cost time. So this procedure can only be efficient if the dim >5.}
+
+\item{saveresult}{is a logical variable to save resultfile in saveresult.csv.}
+
 }
 \details{
 
@@ -99,33 +102,24 @@ X. Mi, T. Miwa and T. Hothorn. Implement of Miwa's analytical algorithm of multi
 
 
  }
-\author{ Xuefei Mi, Jose Marulanda}
+\author{Jose Marulanda, Xuefei Mi}
 \note{ no further comment
 
 }
 \seealso{ selectiongain() }
 \examples{
-#VCGCAandError=c(0.4,0.2,0.2,0.4,2)
-#VCSCA=c(0.2,0.1,0.1,0.2)
 
-# example 1: restriction on the number of location and genotypes
-# for phenotypic stages 2 and 3
-#multistageoptimum.searchThreeS(maseff=NA, VGCAandE=VCGCAandError, VSCA=VCSCA,
-#CostProd=c(1,4,4,4), CostTest=c(0,1,1,1), Nf=3, Budget=3000,
-#N2grid=c(100,500,50),N3grid=c(10,50,5), N4grid=c(10,50,5),
-#L2grid=c(1,2,1), L3grid=c(9,10,1), L4grid=c(9,10,1),
-#T2grid=c(1,2,1), T3grid=c(5,6,1), T4grid=c(5,6,1),
-#R2=1, R3=1, R4=1, alg=Miwa(), detail=FALSE, fig= FALSE, t2free=TRUE)
+VCGCAandError=c(0.4,0.2,0.2,0.4,2)
+VCSCA=c(0.2,0.1,0.1,0.2)
 
-# example 2: More flexible number of location and genotypes
-# for phenotypic stages 2 and 3
+#Budget is reduced to 1000 to save computation time
 
-#multistageoptimum.searchThreeS(maseff=NA, VGCAandE=VCGCAandError, VSCA=VCSCA,
-#       CostProd=c(1,4,4,4), CostTest=c(0,1,1,1), Nf=3, Budget=3000,
-#       N2grid=c(100,500,50),N3grid=c(10,50,5), #N4grid=c(10,50,5),
-#      L2grid=c(2,3,1), L3grid=c(7,8,1), #L4grid=c(9,10,1),
-#      T2grid=c(2,3,1), T3grid=c(2,3,1), #T4grid=c(7,8,1),
-#      R2=1, R3=1, R4=1, alg=Miwa(), detail=FALSE, #fig= FALSE, t2free=TRUE)
+multistageoptimum.searchThreeS(maseff=NA, VGCAandE=VCGCAandError, VSCA=VCSCA,
+   alpha.nursery = 0.25, cost.nursery = c(1,0.3), CostProd=c(0,4,4,4), CostTest=c(0,1,1,1),
+   Nf=3, Budget=1000, N2grid=c(50,200,50),N3grid=c(10,50,5), N4grid=c(10,20,5),
+   L2grid=c(1,2,1), L3grid=c(2,3,1), L4grid=c(4,5,1),
+   T2grid=c(1,2,1), T3grid=c(2,3,1), T4grid=c(4,5,1),
+   R2=1, R3=1, R4=1, alg=Miwa(), detail=FALSE, fig= FALSE, t2free=TRUE)
 
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

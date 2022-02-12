@@ -1,10 +1,10 @@
 # mutistagecor.R author: xuefei mi, 11-03-2013, for selectiongain package v2.0.2
 
 `multistagegain.each` <-
-function(corr,Q, alg=GenzBretz())
+function(corr,Q, alg=GenzBretz(),Vg=1)
 { 
 # pre-set interanl parameters
-  Vg=1 
+  Vg=Vg 
   lim.y=-200
   sum.dim=length(Q)+1
   k=c(lim.y,Q)
@@ -18,12 +18,12 @@ function(corr,Q, alg=GenzBretz())
    
   for (i in 2:c(sum.dim))   
   {
-     gain.array[i-1]= multistagegain(Q=k[2:i],corr[1:i,1:i],alg= GenzBretz())
+     gain.array[i-1]= multistagegain(Q=k[2:i],corr[1:i,1:i],alg= alg, Vg=Vg)
   }
   for (i in 2:c(sum.dim-1))
   { 
-     gain.array[i]=gain.array[i]-gain.array[i-1]   
+     gain.array[i]=gain.array[i]-sum(gain.array[(i-1):1])   
   } 
-gain.array*Vg^0.5
+gain.array#*Vg^0.5
 }
 

@@ -3,10 +3,10 @@
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{Function for calculating the selection gain in each stage}
 \description{
-In some situations, the user wants to know the increase of \eqn{\Delta G} in each stage so that it is possible to determine the stage which contributes most to \eqn{\Delta G}. This function calculates \eqn{\Delta G} stepwise for each stage. 
+In some situations, the user wants to know the increase of \eqn{\Delta G} in each stage so that it is possible to determine the stage which contributes most to \eqn{\Delta G}. This function calculates \eqn{\Delta G} stepwise for each stage.
 }
 \usage{
-multistagegain.each(corr, Q, alg)
+multistagegain.each(corr, Q, alg, Vg)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -15,18 +15,18 @@ multistagegain.each(corr, Q, alg)
 \item{corr}{is the correlation matrix of y and X, which is introduced in the function multistagecorr. The correlation matrix must be symmetric and positive-definite. If the estimated correlation matrix is negative-definite, it must be adjusted before using this function. Before starting the calculations, it is recommended to check the correlation matrix.}
 
 \item{Q}{are the coordinates of the truncation points, which are the output of the function multistagetp that we are going to introduce.}
-  
-%\item{Vg}{is true breeding value. The default value is 1.}
+
+\item{Vg}{correspond to the genetic variance or variance of the GCA effects. The default value is 1}
 
 \item{alg}{is used to switch between two algorithms. If \code{alg = GenzBretz()}, which is by default, the quasi-Monte Carlo algorithm from Genz et al. (2009, 2013), will be used. If \code{alg = Miwa()}, the program will use the Miwa algorithm (Mi et al., 2009), which is an analytical solution of the MVN integral. Miwa's algorithm has higher accuracy (7 digits) than quasi-Monte Carlo algorithm (5 digits). However, its computational speed is slower. We recommend to use the Miwa algorithm.}
-  
+
 }
-\details{This function calculates the well-known selection gain \eqn{\Delta G}, which is described by Cochran (1951), for each stage. 
+\details{This function calculates the well-known selection gain \eqn{\Delta G}, which is described by Cochran (1951), for each stage.
 
 }
 
 \value{
-  The output is given as \eqn{(\Delta G_1(y), \Delta G_2(y)-\Delta G_1(y), \Delta G_3(y)-\Delta G_2(y), ...)$ where $\Delta G_i(y)} refers to the total selection gain after the first i stages of selection. 
+  The output is given as \eqn{(\Delta G_1(y), \Delta G_2(y)-\Delta G_1(y), \Delta G_3(y)-\Delta G_2(y), ...)$ where $\Delta G_i(y)} refers to the total selection gain after the first i stages of selection.
   }
 \references{
 A. Genz and F. Bretz. Computation of Multivariate Normal and t Probabilities. Lecture Notes in Statistics, Vol. 195, Springer-Verlag, Heidelberg, 2009.
@@ -59,8 +59,8 @@ selectiongain()
 corr=matrix( c(1,      0.3508,0.3508,0.4979,
                0.3508, 1,     0.3016,0.5630,
                0.3508, 0.3016,1,     0.5630,
-               0.4979, 0.5630,0.5630,1), 
-              nrow=4  
+               0.4979, 0.5630,0.5630,1),
+              nrow=4
 )
 
 multistagegain.each(Q=c(0.4308,0.9804,1.8603),corr=corr)
@@ -74,8 +74,8 @@ multistagegain.each(Q=c(0.4308,0.9804,1.8603),corr=corr)
 
 corr=matrix( c(1,        0.7071068,0.9354143,
                0.7071068,1,        0.7559289,
-               0.9354143,0.7559289,1), 
-              nrow=3  
+               0.9354143,0.7559289,1),
+              nrow=3
 )
 
 multistagegain.each(Q=Q,corr=corr)

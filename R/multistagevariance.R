@@ -1,11 +1,12 @@
 #23.08.2016 JM: Debugged: changes labeled as #JM_1
 
 `multistagevariance` <-
-function(Q,corr,alg=GenzBretz())
+function(Q,corr,alg=GenzBretz(),Vg=1)
 {
 lim.y=-200
 dim=length(Q)+1
 k=c(lim.y,Q) 
+Vg = Vg
 alphaofx=pmvnorm(lower=k,corr=corr, algorithm =  alg) #JM_1: new line to allow the computation of alphaofx using the Miwa() algorithm
 #alphaofx=pmvnorm(lower=k,corr=corr) #JM_1: old line
 
@@ -258,7 +259,7 @@ calculatx2<-function(i,j,A,A2,part.corr,part.corr.second,dim,corr,k,alpha3)
 
 gainresult<-calculatx2(i=1,j=1,A=A,A2=A2,part.corr=part.corr,part.corr.second=part.corr.second,dim=dim,corr=corr,k=k,alpha3=alphaofx)
 
-gain=multistagegain(Q= Q, corr=corr,alg=alg)
+gain=multistagegain(Q= Q, corr=corr,alg=alg,Vg = Vg)
 
 # V = E(x^2)-E(x)^2
 

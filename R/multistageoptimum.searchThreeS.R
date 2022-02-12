@@ -28,7 +28,9 @@ multistageoptimum.searchThreeS<-function (maseff=0.4, VGCAandE,
   T2grid=c(1,1,1), T3grid=c(1,1,1),T4grid=c(1,1,1),R2=1,R3=1,R4=1,  alg = Miwa(),detail=FALSE,fig=FALSE, #SP
   alpha.nursery=1,cost.nursery=c(0,0) #JM
   ,t2free= FALSE, # Mi 2015-11-10
-  parallel.search=FALSE
+  parallel.search=FALSE, 
+  saveresult=FALSE #Mi 2022-02-09
+#,vargain=FALSE  # mi 2019-04-07
   )
 
 {
@@ -37,9 +39,9 @@ multistageoptimum.searchThreeS<-function (maseff=0.4, VGCAandE,
     no_cores <- detectCores() - 1
     #no_cores <- 1
     cl <- makeCluster(no_cores);
-  #  clusterEvalQ(cl,library(selectiongain))
+    clusterEvalQ(cl,library(selectiongain))
   # just using for testing grid2
-    clusterEvalQ(cl,{library(selectiongain);source("multistageoptimum.grid.R")})
+  # clusterEvalQ(cl,{library(selectiongain);source("multistageoptimum.grid.R")})
   }
 
 #  source('H:/2015-Qingdao/2015-08-15-selectiongain/2_selectiongain_2.0.40_Modif_JM/selectiongainv49/R/multistageoptimum.grid.R')
@@ -60,8 +62,8 @@ multistageoptimum.searchThreeS<-function (maseff=0.4, VGCAandE,
 
   dim=(T4limit[2]-T4limit[1]+1)/T4limit[3]*(T3limit[2]-T3limit[1]+1)/T3limit[3]*(T2limit[2]-T2limit[1]+1)/T2limit[3]*(L4limit[2]-L4limit[1]+1)/L4limit[3]*(L3limit[2]-L3limit[1]+1)/L3limit[3]*(L2limit[2]-L2limit[1]+1)/L2limit[3] #SP
 
-  gainmatrix=array(0,c(1,23)) # JM  # modifyed by X. Mi v49 #SP
-  colnames(gainmatrix)<-c("Nf","Nini","alpha.nur","N1","N2","N3","N4","L2","L3","L4","T2","T3","T4","R2","R3","R4","Bini","B1","B2","B3","B4","Budget","Gain") # JM  # modifyed by X. Mi v49 #SP
+  gainmatrix=array(0,c(1,24)) # JM  # modifyed by X. Mi v70 from 23 to 24 for take the variance of the gain #SP 
+  colnames(gainmatrix)<-c("Nf","Nini","alpha.nur","N1","N2","N3","N4","L2","L3","L4","T2","T3","T4","R2","R3","R4","Bini","B1","B2","B3","B4","Budget","Gain","VarGain") # JM  # modifyed by X. Mi v49 #SP
 
 
 # main function
@@ -118,7 +120,7 @@ for (T3 in seq.int(T3limit[1],T3limit[2],T3limit[3]))
 		   #seq(T3limit[1],T3limit[2],T3limit[3])
 
 			{
-			      allocation = c(Nf,0,alpha.nur,0,0,0,0,L2,L3,L4,T2,T3,T4,R2,R3,R4,0,0,0,0,0,0,0) # JM # modifyed by X. Mi v49 #SP
+			      allocation = c(Nf,0,alpha.nur,0,0,0,0,L2,L3,L4,T2,T3,T4,R2,R3,R4,0,0,0,0,0,0,0,0) # JM # modifyed again by X. Mi v70 #SP
             gainmatrix=rbind(gainmatrix,allocation)
 			}
 		}
@@ -189,7 +191,8 @@ result=multistageoptimum.grid(N.upper = c(100000,N2grid[2],N3grid[2],N4grid[2]),
                                 Budget = Budget, CostProd =CostProdloop, CostTest = CostTestloop, Nf = Nf, #SP
                                 detail = FALSE, alg = Miwa(),fig=FALSE # JM
                                 ,alpha.nursery = alpha.nur,cost.nursery = Cost.nur  #JM_1 the old line was: ,alpha.nursery = 1,cost.nursery = c(0,0) for this reason the nursery stage was not computed.
-  )
+                               # ,vargain=vargain
+                              )
 
 
 gainmatrix[i,"Budget"]=Budget
@@ -240,6 +243,7 @@ result=multistageoptimum.grid( N.upper = c(N2grid[2],N3grid[2],N4grid[2]), N.low
 							   Budget = Budget, CostProd =CostProdloop, CostTest = CostTestloop,
 							   Nf = Nf, detail = FALSE, alg = Miwa(),fig=FALSE  # JM
 							   ,alpha.nursery = alpha.nur,cost.nursery = Cost.nur
+							 #  ,vargain = vargain                               # X.Mi 2019-04-07
 							   )
 
 							   
@@ -279,6 +283,7 @@ if (!parallel.search)
 
   for (j in 1:dim )
   {
+   # warning("the loop is",j)
     gainmatrix[j+1,]= theloop(j=j,gainmatrix,N2grid= N2grid, N3grid= N3grid,N4grid= N4grid,maseff,t2free,CostTest=CostTest,CostProd=CostProd,Budget=Budget,Nf=Nf,alg=alg,cost.nursery=cost.nursery) #SP
 
   }
@@ -287,6 +292,8 @@ if (!parallel.search)
   #clusterExport(cl, "alpha.nursery")
    resulta<- parSapply(cl=cl, 1:dim, FUN=theloop,gainmatrix,N2grid= N2grid, N3grid= N3grid,N4grid= N4grid,maseff=maseff,t2free=t2free,CostTest=CostTest,CostProd=CostProd,Budget=Budget,Nf=Nf,alg=alg,cost.nursery=cost.nursery) #SP
    gainmatrix[1:dim+1,]<-t(resulta)
+   stopCluster(cl)
+
 }
 
 
@@ -294,7 +301,7 @@ if (!parallel.search)
 
 Output=round( gainmatrix,digits=1)
 Output[,"Gain"]=round( gainmatrix[,"Gain"],digits=3)
-output=Output[2:c(dim+1),c("Nf", "Nini","N1", "N2", "N3","N4","L2","L3","L4","T2","T3","T4","R2","R3","R4","Bini","B1","B2","B3","B4","Budget","Gain")]  # JM #SP
+output=Output[2:c(dim+1),c("Nf", "Nini","N1", "N2", "N3","N4","L2","L3","L4","T2","T3","T4","R2","R3","R4","Bini","B1","B2","B3","B4","Budget","Gain","VarGain")]  # JM #SP # X.Mi V2.0.70
 
 gainmax=max(output[,"Gain"])
 
@@ -346,7 +353,45 @@ result=multistageoptimum.grid( N.upper = c(100000,N2grid[2],N3grid[2]), N.lower 
      output
   }else  if (detail!=TRUE )
   {
-     output[gainlocation[1],]
+    i=gainlocation[1]
+    #BudgetDH=gainmatrix[i,"U-DH"]
+    #BudgetMAS=10000-BudgetDH
+    L3=gainmatrix[i,"L3"]
+    L2=gainmatrix[i,"L2"]
+    
+    T3=gainmatrix[i,"T3"]
+    T2=gainmatrix[i,"T2"]
+    R3=gainmatrix[i,"R3"]
+    R2=gainmatrix[i,"R2"]
+    N.fs=gainmatrix[i,"Nf"]
+    
+    L1=1
+    T1=1
+    R1=1
+    
+    corr.longin.mas.index = multistagecor(VGCAandE=Vgca,VSCA=Vsca,L=c(L1,L2,L3),Rep=c(R1,R2,R3),T=c(T1,T2,T3),index=FALSE,maseff=maseff)
+    
+    corr.matrix=corr.longin.mas.index
+    N0= output[gainlocation[1],"Nini"]
+    #N1= output[gainlocation[1],"Nini"]*alpha.nursery
+    N2= output[gainlocation[1],"N2"]
+    N3= output[gainlocation[1],"N3"]
+    N4= output[gainlocation[1],"N4"]
+    
+    Q=multistagetp(alpha=c(alpha.nursery,N3/N2,N4/N3 ),corr=corr.matrix)
+    
+    VarGain=multistagevariance(Q=Q, corr=corr.matrix, alg=Miwa)
+    
+    
+    output[gainlocation[1],"VarGain"]=VarGain
+    
+    if (saveresult==TRUE)
+    {
+    write.csv(output[gainlocation[1],],file="saveresult.csv")
+    
+    message("result is saved in filer saveresult.csv in working folder")
+    }
+    output[gainlocation[1],]
 	}
 
 }

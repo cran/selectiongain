@@ -36,10 +36,13 @@ function(alpha,  corr=NA,  alg=GenzBretz())
   
     for (i in 1:dim)
     {
+        if (!is.na(alpha[i]))
+        {  
         if (alpha[i]==1)
         {
            alpha[i]=alpha[i]*0.9999
         }
+        }  
     
     }
     
@@ -75,26 +78,26 @@ function(alpha,  corr=NA,  alg=GenzBretz())
   
          }else
          {   
-              index1=qnormbar(kwanted=100,koutput,corr,i,alpha, algorithm = alg)
-              index2=qnormbar(kwanted=-100,koutput,corr,i,alpha, algorithm = alg)
+              index1=qnormbar(kwanted=1000,koutput,corr,i,alpha, algorithm = alg)
+              index2=qnormbar(kwanted=-1000,koutput,corr,i,alpha, algorithm = alg)
               
-              #          kwanted should be -100<=  kwanted <= 100
+              #          kwanted should be -1000<=  kwanted <= 1000
               
              if (index1>0)
             {
-                koutput[i]=100
+                koutput[i]=1000
             }else if(index2<0)
             {
-               koutput[i]=-100
+               koutput[i]=-1000
             }          
             else
             {
-             koutput[i]= uniroot(qnormbar,interval=c(-100,100),koutput=koutput,corr,i,alpha,algorithm = alg, tol=0.00001)[[1]][1]  
+             koutput[i]= uniroot(qnormbar,interval=c(-1000,1000),koutput=koutput,corr,i,alpha,algorithm = alg, tol=0.00001)[[1]][1]  
             } 
          }
          if (is.infinite(koutput[i])==TRUE)
          {
-           koutput[i]=-100
+           koutput[i]=-1000
            # this is for the special case that koutput[1] is INF 
          }
      }

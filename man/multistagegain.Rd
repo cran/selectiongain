@@ -84,7 +84,7 @@ corr=matrix( c(1,      0.3508,0.3508,0.4979,
 
 
 
-multistagegain(corr=corr,Q=Q)
+multistagegain(corr=corr,Q=Q, alg=Miwa())
 
 # value  1.227475
 

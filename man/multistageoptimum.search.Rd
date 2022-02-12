@@ -107,9 +107,12 @@ Nf=10
 multistageoptimum.search (maseff=0.4, VGCAandE=VCGCAandError, 
 VSCA=VCSCA, CostProd = c(0.5,1,1), CostTest = c(0.5,1,1), 
 Nf = 10, Budget = Budget, N2grid = c(11, 1211, 30), 
-N3grid = c(11, 211, 5), L2grid=c(1,1,1), L3grid=c(6,6,1),
+N3grid = c(11, 211, 5), L2grid=c(1,3,1), L3grid=c(6,6,1),
+#important note! by Xuefei Mi 2022-02-09
+# in the paper  L3grid=c(6,8,1) but please do not change it here, otherwise
+# due to Budget =1021, the searching room will out of boudry
 T2grid=c(1,2,1), T3grid=c(3,5,1), R2=1, R3=1, alg = Miwa(), 
-detail=TRUE, fig=TRUE)
+detail=TRUE, fig=TRUE, alpha.nursery=1)
 
 
 }

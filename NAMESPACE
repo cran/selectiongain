@@ -11,3 +11,4 @@ import(
 importFrom("graphics", "contour", "image", "points")
 importFrom("stats", "constrOptim", "cov2cor", "dnorm", "embed",
              "pnorm", "qnorm", "uniroot")
+importFrom("utils","write.csv")

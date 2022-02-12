@@ -2,14 +2,26 @@ Package: selectiongain
 Type: Package
 Title: A Tool for Calculation and Optimization of the Expected Gain
         from Multi-Stage Selection
-Version: 2.0.591
-Date: 2016-10-09
-Author: Xuefei Mi, Jose Marulanda, H. Friedrich Utz, Albrecht E. Melchinger (Project contact person: Melchinger@uni-hohenheim.de )
+Version: 2.0.707
+Date: 2022-02-09
+Author: Xuefei Mi, Jose Marulanda, H. Friedrich Utz, Albrecht E. Melchinger
+    (Project contact person: Melchinger@uni-hohenheim.de )
 Maintainer: Xuefei Mi <mi_xue_fei@hotmail.com>
-Depends: R (>= 3.0.0), mvtnorm,parallel
-Description: Multi-stage selection is practiced in numerous fields of life and social sciences and particularly in breeding. A special characteristic of multi-stage selection is that candidates are evaluated in successive stages with increasing intensity and effort, and only a fraction of the superior candidates is selected and promoted to the next stage. For the optimum design of such selection programs, the selection gain plays a crucial role. It can be calculated by integration of a truncated multivariate normal (MVN) distribution. While mathematical formulas for calculating the selection gain and the variance among selected candidates were developed long time ago, solutions for numerical calculation were not available. This package can also be used for optimizing multi-stage selection programs for a given total budget and different costs of evaluating the candidates in each stage.
+Depends: R (>= 4.1.0), mvtnorm,parallel
+Description: Multi-stage selection is practiced in numerous fields of life
+    and social sciences and particularly in breeding. A special characteristic of
+    multi-stage selection is that candidates are evaluated in successive stages
+    with increasing intensity and effort, and only a fraction of the superior
+    candidates is selected and promoted to the next stage. For the optimum design
+    of such selection programs, the selection gain plays a crucial role. It can be
+    calculated by integration of a truncated multivariate normal (MVN) distribution.
+    While mathematical formulas for calculating the selection gain and the variance
+    among selected candidates were developed long time ago, solutions for numerical
+    calculation were not available. This package can also be used for optimizing
+    multi-stage selection programs for a given total budget and different costs of
+    evaluating the candidates in each stage.
 License: GPL-2
 NeedsCompilation: no
 Repository: CRAN
-Packaged: 2016-10-09 14:42:50 UTC; mixuefei
-Date/Publication: 2016-10-09 17:54:53
+Packaged: 2022-02-12 13:51:11 UTC; user
+Date/Publication: 2022-02-12 14:10:02 UTC

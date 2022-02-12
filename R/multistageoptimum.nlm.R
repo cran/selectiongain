@@ -70,7 +70,7 @@
   
      Quantile= multistagetp(alpha, corr=corr, alg=alg)     
                            
-     output<- -multistagegain(Q=Quantile, corr=corr, alg=alg)*Vg^0.5
+     output<- -multistagegain(Q=Quantile, corr=corr, alg=alg, Vg=Vgca)
      
     # if (cost<=Budget*0.9)
     # {

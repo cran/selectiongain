@@ -12,7 +12,7 @@ function(corr, Q, alg= GenzBretz(),parallel=FALSE, Vg=1) #new variable
   #library(parallel)
   
   no_cores <- detectCores() - 1
-  cl <- makeCluster(no_cores);
+  cl <- makeCluster(no_cores)
 #  clusterEvalQ(cl,library(mvtnorm))
   }
   
@@ -164,7 +164,7 @@ function(corr, Q, alg= GenzBretz(),parallel=FALSE, Vg=1) #new variable
     }
   if (parallel)
   { 
-  stopCluster(cl);
+  stopCluster(cl)
   }
   if (stages==TRUE)
   {

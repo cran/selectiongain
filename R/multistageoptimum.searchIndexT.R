@@ -12,16 +12,23 @@
 
 # 3, added t2 free = FALSE,  if FALSE, the cost of using T3 and T2 testers will be accounted seperately
 
-#
+# modified at 26.07.2016 by Jose Marulanda to include one more stage of phenotypic selection, so, up to three (instead of two) stages of phenotypic selecion
+# marked as SP, because it was made for the sweet potato project
 
-multistageoptimum.search<-function (maseff=0.4, VGCAandE,
-  VSCA=c(0,0,0,0), CostProd = c(0.5,1,1), CostTest = c(0.5,1,1),
-  Nf = 10, Budget = 10021, N2grid = c(11, 1211, 30),
-  N3grid = c(11, 211, 5), L2grid=c(1,3,1), L3grid=c(6,8,1),
-  T2grid=c(1,1,1), T3grid=c(1,1,1),R2=1,R3=1,  alg = Miwa(),detail=FALSE,fig=FALSE,
+# modified at 09.09.2016 by Jose Marulanda to include the new parameters of the multistagecor() function created for the
+# index selection project. Then we will be able to find the optimum allocation also for scenarios considering selection for
+# two correlated traits
+
+multistageoptimum.searchIndexT<-function (maseff=0.4, VGCAandE,
+  VSCA=c(0,0,0,0), CostProd = c(0.5,1,1), CostTest = c(0.5,1,1), #SP
+  Nf = 10, Budget = 10021, N2grid = c(11, 1211, 30), #SP
+  N3grid = c(11, 211, 5), L2grid=c(1,3,1), L3grid=c(6,8,1),#SP
+  T2grid=c(1,1,1), T3grid=c(1,1,1),R2=1,R3=1,  alg = Miwa(),detail=FALSE,fig=FALSE, #SP
   alpha.nursery=1,cost.nursery=c(0,0) #JM
   ,t2free= FALSE, # Mi 2015-11-10
-  parallel.search=FALSE
+  parallel.search=FALSE,
+  indexTrait="Optimum",covtype=c("LonginII"),VGCAandE2=c(0,0,0,0,0),VSCA2=c(0,0,0,0), COVgca=c(0,0,0,0,0),  #IndexSel
+  COVsca=c(0,0,0,0), maseff2=0.4, q12=NA, q22=NA , ecoweight=c(1,1)#IndexSel
   )
 
 {
@@ -32,7 +39,7 @@ multistageoptimum.search<-function (maseff=0.4, VGCAandE,
     cl <- makeCluster(no_cores);
     clusterEvalQ(cl,library(selectiongain))
   # just using for testing grid2
-  #  clusterEvalQ(cl,{library(selectiongain);source("multistageoptimum.grid.R")})
+  #  clusterEvalQ(cl,{library(selectiongain);  source("multistageoptimum.grid.R")})
   }
 
 #  source('H:/2015-Qingdao/2015-08-15-selectiongain/2_selectiongain_2.0.40_Modif_JM/selectiongainv49/R/multistageoptimum.grid.R')
@@ -40,32 +47,39 @@ multistageoptimum.search<-function (maseff=0.4, VGCAandE,
 # pre-define parameters
   Vgca=VGCAandE
   Vsca=VSCA
+	eco_w=ecoweight
+	Vgca2=VGCAandE2
+	Vsca2=VSCA2
+	Vcovg=COVgca
+	Vcovs=COVsca
 
   L2limit=L2grid
   L3limit=L3grid
+
   T2limit=T2grid
   T3limit=T3grid
+
 
   alpha.nur=alpha.nursery # JM
   Cost.nur=cost.nursery # JM
 
-  dim=(T3limit[2]-T3limit[1]+1)/T3limit[3]*(T2limit[2]-T2limit[1]+1)/T2limit[3]*(L3limit[2]-L3limit[1]+1)/L3limit[3]*(L2limit[2]-L2limit[1]+1)/L2limit[3]
+  dim=(T3limit[2]-T3limit[1]+1)/T3limit[3]*(T2limit[2]-T2limit[1]+1)/T2limit[3]*(L3limit[2]-L3limit[1]+1)/L3limit[3]*(L2limit[2]-L2limit[1]+1)/L2limit[3] #SP
 
-  gainmatrix=array(0,c(1,18)) # JM  # modifyed by X. Mi v49
+  gainmatrix=array(0,c(1,18)) # JM  # modifyed by X. Mi v49 #SP
   colnames(gainmatrix)<-c("Nf","Nini","alpha.nur","N1","N2","N3","L2","L3","T2","T3","R2","R3","Bini","B1","B2","B3","Budget","Gain") # JM  # modifyed by X. Mi v49
 
 
-# main function
+  # main function
 
-    if (alpha.nur == 1 )                                           # JM
-       {                                                           # JM
-         CostProdMod1<-CostProd[1]+Cost.nur[1]                     # JM
-#	     warning("No nursery is used as alpha.nursery is set to 1. Then # cost of production in Nursery added to CostProd[1]")  # JM
-       }
-    else
-	   {
-	   CostProdMod1<-CostProd[1]
-	   }
+  if (alpha.nur == 1 )                                           # JM
+  {                                                           # JM
+    CostProdMod1<-CostProd[1]+Cost.nur[1]                     # JM
+    warning("No nursery is used as alpha.nursery is set to 1. Then cost of production in Nursery added to CostProd[1]")  # JM
+  }
+  else
+  {
+    CostProdMod1<-CostProd[1]
+  }
 
 
   if (Budget< c(N2grid[1]*L2grid[1]*T2grid[1]+N3grid[1]*L3grid[1]*T3grid[1]))
@@ -73,7 +87,7 @@ multistageoptimum.search<-function (maseff=0.4, VGCAandE,
     warning("budget too small, try value => c(N2grid[1]*L2grid[1]*T2grid[1]+N3grid[1]*L3grid[1]*T3grid[1])")
   }
 
-   # modified at 2015-11-09, from stop to warning, make more freedom
+  # modified at 2015-11-09, from stop to warning, make more freedom
 
   if (Budget> c(N2grid[2]*L2grid[2]*T2grid[2]+N3grid[2]*L3grid[2]*T3grid[2]))
   {
@@ -82,7 +96,7 @@ multistageoptimum.search<-function (maseff=0.4, VGCAandE,
 
   # modified at 2015-11-09, from stop to warning, make more freedom
 
- if (length(CostTest)!= 3)
+  if (length(CostTest)!= 3)
   {
     stop( "dimension of CostTest has to be 3")
   }
@@ -92,29 +106,29 @@ multistageoptimum.search<-function (maseff=0.4, VGCAandE,
   }
 
 
-for (T3 in seq.int(T3limit[1],T3limit[2],T3limit[3]))
-{
-  for (T2 in seq.int(T2limit[1],T2limit[2],T2limit[3]))
-	{
-	  for (L3 in L3limit[1]:L3limit[2])
-	  # seq(T3limit[1],T3limit[2],T3limit[3])
+  for (T3 in seq.int(T3limit[1],T3limit[2],T3limit[3]))
+  {
+    for (T2 in seq.int(T2limit[1],T2limit[2],T2limit[3]))
+    {
+      for (L3 in L3limit[1]:L3limit[2])
+        # seq(T3limit[1],T3limit[2],T3limit[3])
 
-		{
-		   for (L2 in L2limit[1]:L2limit[2])
-		   #seq(T3limit[1],T3limit[2],T3limit[3])
+      {
+        for (L2 in L2limit[1]:L2limit[2])
+          #seq(T3limit[1],T3limit[2],T3limit[3])
 
-			{
-			      allocation = c(Nf,0,alpha.nur,0,0,0,L2,L3,T2,T3,R2,R3,0,0,0,0,0,0) # JM # modifyed by X. Mi v49
-            gainmatrix=rbind(gainmatrix,allocation)
-			}
-		}
-	}
-}
+        {
+          allocation = c(Nf,0,alpha.nur,0,0,0,L2,L3,T2,T3,R2,R3,0,0,0,0,0,0) # JM # modifyed by X. Mi v49
+          gainmatrix=rbind(gainmatrix,allocation)
+        }
+      }
+    }
+  }
 
-# here begins the loop circle
+  # here begins the loop circle
 
 
-theloop<-function(j,gainmatrix, N2grid= N2grid, N3grid= N3grid,maseff,t2free,CostTest=CostTest,CostProd=CostProd,Budget=Budget,Nf=Nf,alg=alg,cost.nursery=c(0,0) )
+theloop<-function(j,gainmatrix, N2grid= N2grid, N3grid= N3grid,maseff,maseff2,q12,q22,t2free,CostTest=CostTest,CostProd=CostProd,Budget=Budget,Nf=Nf,alg=alg,cost.nursery=c(0,0) ) #SP
 
 {
 
@@ -127,13 +141,18 @@ alpha.nur=gainmatrix[i,"alpha.nur"]
 
 #BudgetDH=gainmatrix[i,"U-DH"]
 #BudgetMAS=10000-BudgetDH
+
 L3=gainmatrix[i,"L3"]
 L2=gainmatrix[i,"L2"]
 
+
 T3=gainmatrix[i,"T3"]
 T2=gainmatrix[i,"T2"]
+
+
 R3=gainmatrix[i,"R3"]
 R2=gainmatrix[i,"R2"]
+
 N.fs=gainmatrix[i,"Nf"]
 
 L1=1
@@ -142,9 +161,12 @@ R1=1
 
 if (!is.na(maseff))
 {
-corr.longin.mas.index = multistagecor(VGCAandE=Vgca,VSCA=Vsca,L=c(L1,L2,L3),Rep=c(R1,R2,R3),T=c(T1,T2,T3),index=FALSE,maseff=maseff)
+corr.longin.mas.index = multistagecor(VGCAandE=Vgca,VSCA=Vsca,L=c(L1,L2,L3),Rep=c(R1,R2,R3),T=c(T1,T2,T3), #SP
+                                      index=FALSE,maseff=maseff, maseff2=maseff2, ecoweight=eco_w, indexTrait=indexTrait, #IndexSel
+                                      covtype=covtype, detail=TRUE, VGCAandE2=Vgca2,VSCA2 = Vsca2, COVgca=Vcovg, COVsca=Vcovs,#IndexSel
+                                       q12=q12, q22=q22) #IndexSel
 
-corr.matrix=corr.longin.mas.index
+corr.matrix=corr.longin.mas.index[[1]]
 
 CostTestloop=c(CostTest[1],CostTest[2]*L2*T2*R2,CostTest[3]*L3*T3*R3)
 
@@ -158,12 +180,12 @@ if(t2free)
   #CostProdloop=c(CostProd[1],CostProd[2]*T2,CostProd[3]*T3) # Mi #old code
 }
 
-result=multistageoptimum.grid(N.upper = c(100000,N2grid[2],N3grid[2]), N.lower =  c(1,N2grid[1],N3grid[1]),
-                               Vg=Vgca[1],corr = corr.matrix, width =  c(1,N2grid[3],N3grid[3]),
-							   Budget = Budget, CostProd =CostProdloop, CostTest = CostTestloop, Nf = Nf,
+
+result=multistageoptimum.grid(N.upper = c(100000,N2grid[2],N3grid[2]), N.lower =  c(1,N2grid[1],N3grid[1]), #SP
+                              Vg=corr.longin.mas.index[[3]][1,1],corr = corr.matrix, width =  c(1,N2grid[3],N3grid[3]), #SP #IndexSel
+                              Budget = Budget, CostProd =CostProdloop, CostTest = CostTestloop, Nf = Nf, #SP
 							   detail = FALSE, alg = Miwa(),fig=FALSE # JM
-							   ,alpha.nursery = alpha.nur,cost.nursery = Cost.nur #NewBug in this case we can make MAs and nursery seleciton
-							   #,alpha.nursery = 1,cost.nursery = c(0,0) #old code
+							   ,alpha.nursery=alpha.nursery,cost.nursery=cost.nursery
 							   )
 gainmatrix[i,"Budget"]=Budget
 gainmatrix[i,"Nini"]= result[1]                               # JM
@@ -185,10 +207,15 @@ if(t2free)
 
 gainmatrix[i,"Gain"]= result[5]                                   # JM
 }else
-{
-corr.longin.mas.index = multistagecor(VGCAandE=Vgca,VSCA=Vsca,L=c(L2,L3),Rep=c(R2,R3),T=c(T2,T3),index=FALSE,maseff=maseff)
 
-corr.matrix=corr.longin.mas.index
+# aqui empieza el computo de sin marcadores moleculares #SP
+{
+corr.longin.mas.index = multistagecor(VGCAandE=Vgca,VSCA=Vsca,L=c(L2,L3),Rep=c(R2,R3),T=c(T2,T3),
+                                      index=FALSE,maseff=maseff, maseff2=maseff2, ecoweight=eco_w, indexTrait=indexTrait, #IndexSel
+                                      covtype=covtype, detail=TRUE, VGCAandE2=Vgca2,VSCA2 = Vsca2, COVgca=Vcovg, COVsca=Vcovs, #IndexSel
+                                      q12=q12, q22=q22) #IndexSel
+
+corr.matrix=corr.longin.mas.index[[1]]
 
 CostTestloop=c(CostTest[2]*L2*T2*R2,CostTest[3]*L3*T3*R3)
 #CostProdloop=c(CostProd[1]+(CostProd[2]*T2),CostProd[3]*(T3-T2))  # JM
@@ -206,8 +233,9 @@ if(t2free)
 }
 
 
-result=multistageoptimum.grid( N.upper = c(N2grid[2],N3grid[2]), N.lower =  c(N2grid[1],N3grid[1]),
-                               Vg=Vgca[1],corr = corr.matrix, width =  c(N2grid[3],N3grid[3]),
+
+result=multistageoptimum.grid( N.upper = c(N2grid[2],N3grid[2]), N.lower =  c(N2grid[1],N3grid[1]), #SP
+                               Vg=corr.longin.mas.index[[3]][1,1],corr = corr.matrix, width =  c(N2grid[3],N3grid[3]), #SP #IndexSel
 							   Budget = Budget, CostProd =CostProdloop, CostTest = CostTestloop,
 							   Nf = Nf, detail = FALSE, alg = Miwa(),fig=FALSE  # JM
 							   ,alpha.nursery = alpha.nur,cost.nursery = Cost.nur
@@ -232,7 +260,6 @@ if(t2free)
 }
 
 
-
 gainmatrix[i,"Gain"]= result[4]                                     # JM
 
 }
@@ -241,25 +268,22 @@ gainmatrix[i,]
 
 }
 
-# end of theloop
-
 if (!parallel.search)
 {
 
   for (j in 1:dim )
   {
-    gainmatrix[j+1,]= theloop(j=j,gainmatrix,N2grid= N2grid, N3grid= N3grid,maseff,t2free,CostTest=CostTest,CostProd=CostProd,Budget=Budget,Nf=Nf,alg=alg,cost.nursery=cost.nursery)
+    gainmatrix[j+1,]= theloop(j=j,gainmatrix,N2grid= N2grid, N3grid= N3grid,maseff,maseff2,q12,q22,t2free,CostTest=CostTest,CostProd=CostProd,Budget=Budget,Nf=Nf,alg=alg,cost.nursery=cost.nursery) #SP
 
   }
 }else if(parallel.search)
 {
   #clusterExport(cl, "alpha.nursery")
-   resulta<- parSapply(cl=cl, 1:dim, FUN=theloop,gainmatrix,N2grid= N2grid, N3grid= N3grid,maseff=maseff,t2free=t2free,CostTest=CostTest,CostProd=CostProd,Budget=Budget,Nf=Nf,alg=alg,cost.nursery=cost.nursery)
+   resulta<- parSapply(cl=cl, 1:dim, FUN=theloop,gainmatrix,N2grid= N2grid, N3grid= N3grid,maseff=maseff,maseff2=maseff2,q12,q22,t2free=t2free,CostTest=CostTest,CostProd=CostProd,Budget=Budget,Nf=Nf,alg=alg,cost.nursery=cost.nursery) #SP
    gainmatrix[1:dim+1,]<-t(resulta)
    stopCluster(cl)
+
 }
-
-
 
 
 Output=round( gainmatrix,digits=1)
@@ -289,9 +313,11 @@ L1=1
 T1=1
 R1=1
 
-corr.longin.mas.index = multistagecor(VGCAandE=Vgca,VSCA=Vsca,L=c(L1,L2,L3),Rep=c(R1,R2,R3),T=c(T1,T2,T3),index=FALSE,maseff=maseff)
-
-corr.matrix=corr.longin.mas.index
+corr.longin.mas.index = multistagecor(VGCAandE=Vgca,VSCA=Vsca,L=c(L1,L2,L3),Rep=c(R1,R2,R3),T=c(T1,T2,T3),
+                                      index=FALSE,maseff=maseff, maseff2=maseff2, ecoweight=eco_w, indexTrait=indexTrait, #IndexSel
+                                      covtype=covtype, detail=TRUE,VGCAandE2=Vgca2,VSCA2 = Vsca2, COVgca=Vcovg, COVsca=Vcovs, #IndexSel
+                                      q12=q12, q22=q22) #IndexSel
+corr.matrix=corr.longin.mas.index[[1]]
 
 CostTestloop=c(CostTest[1],CostTest[2]*L2*T2*R2,CostTest[3]*L3*T3*R3)
 # CostProdloop=c(CostProd[1],CostProd[2]*T2,CostProd[3]*(T3-T2))  # JM
@@ -306,7 +332,7 @@ if(t2free)
 }
 
 result=multistageoptimum.grid( N.upper = c(100000,N2grid[2],N3grid[2]), N.lower =  c(1,N2grid[1],N3grid[1]),
-                               Vg=Vgca[1],corr = corr.matrix, width =  c(1,N2grid[3],N3grid[3]),
+                               Vg=corr.longin.mas.index[[3]][1,1],corr = corr.matrix, width =  c(1,N2grid[3],N3grid[3]),
 							   Budget = Budget, CostProd =CostProdloop, CostTest = CostTestloop, Nf = Nf,
 							   detail = detail, alg = Miwa(),fig=TRUE # JM
 							   ,alpha.nursery=alpha.nursery,cost.nursery=cost.nursery)
@@ -318,6 +344,8 @@ result=multistageoptimum.grid( N.upper = c(100000,N2grid[2],N3grid[2]), N.lower 
   }else  if (detail!=TRUE )
   {
      output[gainlocation[1],]
-	}
+  }
+
+
 
 }
