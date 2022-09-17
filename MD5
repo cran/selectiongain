@@ -1,4 +1,4 @@
-0fbe8fc9b95db0f77b9813182e24be8b *DESCRIPTION
+7daea2cdfcebaff71ba16eb6cf93a892 *DESCRIPTION
 5e29e3445b68c1d7e2768929c68b7b08 *NAMESPACE
 760e52f92cb96a21afcad78c339db66f *R/SDselectiongain.R
 75f35126101d8558197d7c474e98308a *R/multistagecor.R
@@ -14,7 +14,7 @@ a3f2b6e75b07ada8cb4a8fd58b387985 *R/multistagetp.R
 073a15f2571f57437d7d2a9874c8ece3 *man/SDselectiongain.Rd
 2ebb8ac45539df22e45208db0b558503 *man/multistagecor.Rd
 41d999f24b5c37539d30b1441aeadcb7 *man/multistagegain.Rd
-be5a740d97235edcc3139b831792a883 *man/multistagegain.each.Rd
+73068666248599ae598b70af9ff6be3a *man/multistagegain.each.Rd
 33fb0b6c10da96c213b83403d5a4349f *man/multistageoptimum.grid.Rd
 5ac393cac8f15ce41ce2131681c2d17e *man/multistageoptimum.nlm.Rd
 7036df5855ba7e7491747190da7c0b1f *man/multistageoptimum.search.Rd

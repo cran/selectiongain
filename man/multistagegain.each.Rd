@@ -26,7 +26,7 @@ multistagegain.each(corr, Q, alg, Vg)
 }
 
 \value{
-  The output is given as \eqn{(\Delta G_1(y), \Delta G_2(y)-\Delta G_1(y), \Delta G_3(y)-\Delta G_2(y), ...)$ where $\Delta G_i(y)} refers to the total selection gain after the first i stages of selection.
+  The output is given as \eqn{(\Delta G_1(y), \Delta G_2(y)-\Delta G_1(y), \Delta G_3(y)-\Delta G_2(y), ...)} where \eqn{\Delta G_i(y)} refers to the total selection gain after the first i stages of selection.
   }
 \references{
 A. Genz and F. Bretz. Computation of Multivariate Normal and t Probabilities. Lecture Notes in Statistics, Vol. 195, Springer-Verlag, Heidelberg, 2009.

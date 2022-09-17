@@ -2,8 +2,8 @@ Package: selectiongain
 Type: Package
 Title: A Tool for Calculation and Optimization of the Expected Gain
         from Multi-Stage Selection
-Version: 2.0.707
-Date: 2022-02-09
+Version: 2.0.710
+Date: 2022-09-17
 Author: Xuefei Mi, Jose Marulanda, H. Friedrich Utz, Albrecht E. Melchinger
     (Project contact person: Melchinger@uni-hohenheim.de )
 Maintainer: Xuefei Mi <mi_xue_fei@hotmail.com>
@@ -23,5 +23,5 @@ Description: Multi-stage selection is practiced in numerous fields of life
 License: GPL-2
 NeedsCompilation: no
 Repository: CRAN
-Packaged: 2022-02-12 13:51:11 UTC; user
-Date/Publication: 2022-02-12 14:10:02 UTC
+Packaged: 2022-09-17 09:07:11 UTC; user
+Date/Publication: 2022-09-17 09:56:04 UTC
